@@ -3,7 +3,7 @@
 
 clear; close all; clc
 
-raw_data_path = pwd; % The file selection dialog will open on this folder
+raw_data_path = 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\Raw\EEG Raw'; % The file selection dialog will open on this folder
 
 % necessary functions:
 % from fieldtrip: read_biosemi_bdf, read_24bit (plus all the read_24bit mex files), ReadBioSemiTriggerChannel
@@ -92,14 +92,12 @@ if partnum==14
 SDATA=cleanpart4(SDATA);
 end
 
+%% 3. Mark bad electrodes
 SDATA.metadata.bad_electrodes=[];
 SDATA.metadata.good_electrodes=1:size(SDATA.data,2);
 SDATA.metadata.analysisStageDone=2;
 
 clear EEGdata session_data 
-
-%% 3. Mark bad electrodes
-
 %% 3.1: inspect data
 % Add trigger channel to see start end end of trials
 AnonymousTriggers2=zeros(length(SDATA.events.triggerChannel),1);
@@ -204,6 +202,7 @@ SDATA.metadata.analysisStageDone=6;
 %% 7. ICA
 
 %% 7.1: prepare for ICA
+
 verSupChanName='LVEOG (68)';
 verInfChanName='UVEOG (67)';
 horRightChanName='RHEOG (66)';
@@ -350,7 +349,7 @@ lpf_cutoff_for_rdi = 50;
 abs_amp_threshold = 100;
 low_act_allowed = 0.5;
 low_act_interval = 100;
-minmax_allowed = 110;
+minmax_allowed = 100;
 minmax_interval=200;
 art_margin = 200; % in msec
 
@@ -444,6 +443,7 @@ SDATA.metadata.analysisStageDone=9;
 
 %% 10. save SData
 clc
+cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\Data\EEG Preprocessed'
 fileNameSave=[SDATA.info.fileNames{1}(1:end-4) '_pp.mat'];
 disp('Saving')
 save(fileNameSave, 'SDATA','-v7.3')
