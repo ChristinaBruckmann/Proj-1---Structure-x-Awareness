@@ -6,13 +6,13 @@ clc
 
 batches=[2]; % 3 is combined
 subj1=[17:22];
-subj2=[101:103 105:108 113];
-subj3=[17:22 101:103 105:106];
+subj2=[101:103 105:108 113 114];
+subj3=[17:22 101:103 105:108 113 114];
 clusters=[1 2]; % (1-occipital, 2- central)
 trialtypes= [1 2]; % (1-all trials, 2 - catch trials)
 plotindividuals=[0]; % plot also individual participants
 %% Dir
-cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\Data Analysis\SxA_EEG_Analyses_Current\Results\DeltaRes'
+cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\DeltaRes'
 
 %% Delta Average
 for cbatch=1:length(batches)

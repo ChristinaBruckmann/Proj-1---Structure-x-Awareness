@@ -3,10 +3,10 @@
 clear
 clc
 %subj=[17:22 101:103 105:106];
-subj=[101:103 105:108 113];
+subj=[101:103 105:108 113 114];
  cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\DeltaRes'
 cluster=1; %(1 occipital, 2 central)
-catchonly=1; %(1-yes)
+catchonly=0; %(1-yes)
 
 if cluster==1
     elec=[25:30 62:64]; % occipital electrodes

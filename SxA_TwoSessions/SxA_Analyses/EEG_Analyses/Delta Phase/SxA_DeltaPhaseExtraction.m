@@ -1,6 +1,5 @@
-%% Re-Analysis of Delta Phase from scratch to make sure there are no bugs in the first script. Only occipital for now.
-% Addition: Individual Trial data gets saved to that they can all be
-% plotted and compared.
+%% Analysis of Delta Phase
+% Addition: Individual Trial data gets saved to that they can all be plotted and compared.
 
 function SxA_DeltaPhaseExtraction(subj)
 

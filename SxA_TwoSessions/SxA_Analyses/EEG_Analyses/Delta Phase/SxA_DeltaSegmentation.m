@@ -20,7 +20,7 @@ end
 
 for s=1:length(subj)
     cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\DeltaRes'
-    loadfilename1=sprintf('EEG_SxA_Subj%i_Results_NewDelta.mat',subj(s));
+    loadfilename1=sprintf('EEG_SxA_Subj%i_DeltaPhaseSingleTrials.mat',subj(s));
     loadfilename2=sprintf('EEG_SxA_Subj%i_Session2_pp.mat',subj(s));
     %savefilename=sprintf('EEG_SxA_Subj%i_Results_NewDelta.mat',subj(s));
     if cluster==1

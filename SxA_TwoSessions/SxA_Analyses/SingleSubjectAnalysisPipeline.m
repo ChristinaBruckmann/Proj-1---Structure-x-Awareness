@@ -1,7 +1,8 @@
 %% Single Subject Pipeline SxA
 % Every new subject for which we have behavioural data from both session, as well as preprocessed EEG-Data from the second one
 % Should be run through this pipeline to create the result files necessary for all GL analyses
-
+clear
+clc
 subj=input("Subject Number: ");
 
 %% Behavioural Analysis
@@ -28,6 +29,9 @@ sxa_TF_alpaamp(subj,1,1) % Alpha Amplitude Catch Trials Only
 disp('Alpha Analysis Done.')
 
 % Delta ITPC
+disp('Starting Delta Analysis.')
+SxA_DeltaPhaseExtraction(subj)
+disp('Starting Delta Sementation.')
 SxA_DeltaSegmentation(subj,1,0) % Occipital Cluster, All Trials
 SxA_DeltaSegmentation(subj,2,0) % Central Cluster, All Trials
 SxA_DeltaSegmentation(subj,1,1) % Occipital Cluster, Catch Only

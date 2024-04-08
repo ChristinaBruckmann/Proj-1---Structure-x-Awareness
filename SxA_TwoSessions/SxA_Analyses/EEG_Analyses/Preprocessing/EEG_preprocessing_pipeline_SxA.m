@@ -129,8 +129,8 @@ SDATA.metadata.analysisStageDone=3;
 
 
 %% 4. reference
-%reference_channels=[69,70]; %linked mastoids
-reference_channels=[71]; %nose
+reference_channels=[69,70]; %linked mastoids
+%reference_channels=[71]; %nose
 clc
 
 ref_chans = reference_channels(~ismember(reference_channels,SDATA.metadata.bad_electrodes));
@@ -443,7 +443,7 @@ SDATA.metadata.analysisStageDone=9;
 
 %% 10. save SData
 clc
-cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\Data\EEG Preprocessed'
+cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Preprocessed'
 fileNameSave=[SDATA.info.fileNames{1}(1:end-4) '_pp.mat'];
 disp('Saving')
 save(fileNameSave, 'SDATA','-v7.3')
