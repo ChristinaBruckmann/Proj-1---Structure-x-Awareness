@@ -1,0 +1,16 @@
+
+*.mat
+*.docx
+*.jpg
+*.pptx
+*.tif
+*.txt
+*.csv
+*.pdf
+*.locs
+/SxA_TwoSessions/SxA_Analyses/Preprocessing and Toolboxes
+/SxA_TwoSessions/Trash Folder
+*.xls
+*.xlsx
+*.bdf
+*.Rdata
