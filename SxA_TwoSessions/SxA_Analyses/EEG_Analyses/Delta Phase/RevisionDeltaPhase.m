@@ -1,20 +1,19 @@
 %% Re-Analysis of Delta Phase from scratch to make sure there are no bugs in the first script. Only occipital for now.
 % Addition: Individual Trial data gets saved to that they can all be
 % plotted and compared.
-clear 
-clc
-%subj=[17:22];
-subj=[113];
+
+function SxA_DeltaITPCAnalysis(subj)
+
 %% Extract ITPC from whole data (with different reference depending on cluster)
 
 for s=1:length(subj)
 disp('Starting Delta Phase Analysis')
 
 % Load Data
-cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\Data\EEG Preprocessed'
+cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Preprocessed'
 
 loadfilename=sprintf('EEG_SxA_Subj%i_Session2_pp.mat',subj(s));
-savefilename=sprintf('EEG_SxA_Subj%i_Results_NewDelta.mat',subj(s));
+savefilename=sprintf('EEG_SxA_Subj%i_DeltaPhaseSingleTrials.mat',subj(s));
 load(loadfilename)
 
 % Parameters

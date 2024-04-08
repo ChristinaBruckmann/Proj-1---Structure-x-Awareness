@@ -1,11 +1,11 @@
 %% Single Subject Analysis (Structure x Awareness)
-clc
-clear
-cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\Data\Raw\Behaviour Raw'
 
-subj_n=input('Subject Number? ');
-session_n=input('Session(1/2) or Merged (3)? ');
-plots=input('Generate Plots (0/1)? '); 
+function SxA_SingleSubjBehav_Analysis(subj_n,session_n,plots)
+cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\Raw\Behaviour Raw'
+
+% subj_n=input('Subject Number? ');
+% session_n=input('Session(1/2) or Merged (3)? ');
+% plots=input('Generate Plots (0/1)? '); 
 
 if ismember(session_n,[1,2])
     loadname=sprintf('SxA1.1_s%i-session%i.mat',subj_n,session_n);
@@ -17,7 +17,7 @@ end
 
 load(loadname)
 %% Clean Up Data File & Basic Checks
-cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\Data\Behavioural Preprocessed'
+cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\Behavioural Preprocessed'
 % Check frame rate:
 meanfrrate=mean(subresults.data{:,"Frame Rate"});
 
@@ -377,4 +377,5 @@ xticklabels({'Objective','Subjective'})
 title('Midpoint Difference')
 yline(0,'-','Irregular Midpoint');
 legend('Rhythm','Interval')
+end
 end

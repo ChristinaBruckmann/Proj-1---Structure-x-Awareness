@@ -13,9 +13,9 @@ TF_wavFreqs=1:40; % Range taken from Elmira, Assaf uses 1:30 in plos bio
 %alpharange=8:12;
 
 % Load Data
-cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\Data\EEG Preprocessed'
+cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Preprocessed'
 loadfilename=sprintf('EEG_SxA_Subj%i_Session2_pp.mat',subj);
-savefilename=sprintf('EEG_SxA_Subj%i_Results_New.mat',subj);
+savefilename=sprintf('EEG_SxA_Subj%i_TF_SingleTrials.mat',subj);
 load(loadfilename)
 
 % Extract Info and Data from File
@@ -67,7 +67,7 @@ for c=1:size(triggercodes,1) % For conditions
     TF_NotArtifact{c}=isNotArtifact;
     clear condResults segmentedData timeVec subj
 end
-cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\Data Analysis\SxA_EEG_Analyses_Current\Results'
+cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\TimeFreq'
 if ~singletrials
     save(savefilename, 'TF_Results', 'TF_timeVecTotal', 'TF_wavFreqs');
 else

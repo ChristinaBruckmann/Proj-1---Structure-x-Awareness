@@ -22,7 +22,7 @@ alpha_wavFreqs=1:40; % Range taken from Elmira, Assaf uses 1:30 in plos bio
 alpharange=8:12;
 
 % Load Data
-cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\Data\EEG Preprocessed'
+cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Preprocessed'
 % subj=input("Subject Number? ");
 %occelonly=input("Display occipital electrodes only (1-yes, 0-all)? ");
 occelonly=1;
@@ -30,7 +30,7 @@ loadfilename=sprintf('EEG_SxA_Subj%i_Session2_pp.mat',subj);
 if catchonly
     savefilename=sprintf('EEG_SxA_Subj%i_AlphaResults_Catch.mat',subj);
 else
-savefilename=sprintf('EEG_SxA_Subj%i_AlphaResults.mat',subj);
+    savefilename=sprintf('EEG_SxA_Subj%i_AlphaResults.mat',subj);
 end
 load(loadfilename)
 
@@ -53,7 +53,7 @@ for c=1:size(triggercodes,1) % For conditions
 
         % Get index for irregular trials without target in time window if not catch trials
         if c==3 && ~catchonly
-            cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\Data\Behavioural Preprocessed'
+            cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\Behavioural Preprocessed'
             load(sprintf('SxA_ResultsSubject%i_Session2.mat',subj),'alldataclean')
             idx_notar=ismember(alldataclean{(alldataclean{:,'Condition'}==c),'Irregular Target Time'},irrtartimes);
         else
@@ -89,7 +89,7 @@ for c=1:size(triggercodes,1) % For conditions
     alpha_ntrials{c}=size(segmentedData,3);
     clear condResults segmentedData timeVec
 end
-cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\Data Analysis\SxA_EEG_Analyses_Current\Results\AlphaRes'
+cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\AlphaRes'
 save(savefilename, 'alpha_Results', 'alpha_timeVecTotal', 'alpha_wavFreqs', 'alpha_tfElectrodes','alpha_ntrials');
 disp('Alpha Amplitude Results Saved')
 %% Plot TF
