@@ -3,14 +3,14 @@ clear
 clc
 
 catchonly=0;
-basec=1; % baseline correction?
+basec=0; % baseline correction?
 %subj=[14 15 17:22];
-subj=[101:103 105 106:108 111 113];
-%subj=[17:22 101:103 105 106:108 113];
+subj=[101:103 105 106:108 111 113 114];
+%subj=[17:22 101:103 105 106:108 113 114];
 
 % Load Data
 for s=1:length(subj)
-    cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\Data Analysis\SxA_EEG_Analyses_Current\Results\AlphaRes'
+    cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\AlphaRes'
     if catchonly
         loadfilename=sprintf('EEG_SxA_Subj%i_AlphaResults_Catch.mat',subj(s));
     else

@@ -5,10 +5,10 @@ clear
 clc
 
 % Parameters
-subj=[21];
+subj=[101 102 103 105 106 107 108 111 113 114];
 freqrange=[1:40];
 electrodes=[25:30 62:64]; % occipital
-timep=[250 1000]; %(data aligned to warning signal, target at 800)
+timep=[250 1200]; % (data aligned to warning signal, target at 800)
 cond=[1 2]; % which conditions (rhythm, interval, irregular)
 
 % R or matlab?
@@ -17,8 +17,8 @@ matlab=0;
 
 % Load TF Data
 for s=subj
-    cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\Data Analysis\SxA_EEG_Analyses_Current\Results'
-    loadfilename=sprintf('EEG_SxA_Subj%i_Results_New.mat',s);
+    cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\TimeFreq'
+    loadfilename=sprintf('EEG_SxA_Subj%i_TF_SingleTrials',s);
     load(loadfilename,'TF_Results_Trial','TF_trial_timeVec','TF_NotArtifact')
     savefilename=sprintf('EEG_SxA_Subj%i_Results_SubjObj.mat',s);
     TF_res=TF_Results_Trial; % Size: frequencies timepoints trials electrodes
@@ -31,13 +31,13 @@ for s=subj
         data=TF_res{1, c};
         timevec=TF_time{1, c};
         idx=timevec>=timep(1)&timevec<=timep(2);
-        data=mean(data(freqrange,idx,:,electrodes),4); % average across electrodes (freq,time, trials)
+        data=mean(data(idx,freqrange,:,electrodes),4); % average across electrodes (time, freq,trials,elecs)
         % Convert to Power
         data_power{c}=squeeze(abs(data).^2);
     end
 
     % Load Behavioural Data
-    cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\Data Analysis\Behaviour'
+    cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\Behavioural Preprocessed'
     loadfilename=sprintf('SxA_ResultsSubject%i_Session2',s);
     load(loadfilename,'alldataclean')
     behaviour=alldataclean;
@@ -50,7 +50,7 @@ for s=subj
         obj_resp=behaviour{logidx,'Correct/Incorrect'};
         subj_resp=behaviour{logidx,'Binary Visibility'};
         contrast=behaviour{logidx,'Contrast Level'};
-        all_behav{c}=[contrast(logical(TF_NotArtifact{c})) obj_resp(logical(TF_NotArtifact{c}))  subj_resp(logical(TF_NotArtifact{c}))]; % save trial list with artifacts removed
+        all_behav{c}=[contrast(logical(TF_ArtVectors{c})) obj_resp(logical(TF_ArtVectors{c}))  subj_resp(logical(TF_ArtVectors{c}))]; % save trial list with artifacts removed
 
         % Remove Catch Trials
         catchidx=all_behav{c}(:,1)~=0; % select non-catch trials only
@@ -60,7 +60,7 @@ for s=subj
         % For irreular, remove trials with target before 800
         if c==3
             targettime=behaviour{logidx,'Irregular Target Time'};
-            targettime=targettime(logical(TF_NotArtifact{c})); % remove artifacts
+            targettime=targettime(logical(TF_ArtVectors{c})); % remove artifacts
             targettime=targettime(catchidx,:); % remove catch trials
             targetidx=ismember(targettime,[3,4,5]); % find trials with target at 800ms or later
             all_behav{c}=all_behav{c}(targetidx,:);
@@ -68,7 +68,10 @@ for s=subj
         end
     end
 
-    save("RInput",'allbehav','data_power')
+    cd  'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\SubjObj'
+    savefilename2=sprintf("RInput_LogReg_S%i",s);
+    save(savefilename2,'all_behav','data_power')
+end
     %% Cross-Trial Regression
     if matlab
         % For each condition
@@ -115,7 +118,7 @@ for s=subj
         % Run R
 
         % Save
-        cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\Data Analysis\SxA_EEG_Analyses_Current\Results\SubjObj'
+        cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\SxA_EEG_Analyses_Current\Results\SubjObj'
         save(savefilename,'total_bob','total_bsu','total_statsob','total_statssu','cond','electrodes','freqrange','timep')
     end
 end
