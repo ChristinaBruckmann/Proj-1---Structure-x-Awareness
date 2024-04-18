@@ -54,7 +54,7 @@ for objsubj=[1:2]
         title('Subjective Contrast Coefficients - Predictive Conditions')
     end
     subplot(1,2,2)
-    heatmap(squeeze(logregcoeff_mean(1,objsubj,1,2,:,:))','GridVisible','off','ColorLimits',[-0.5 1.2]) % Plot Power Coefficients
+    heatmap(squeeze(logregcoeff_mean(1,objsubj,1,2,:,:))','GridVisible','off','ColorLimits',[-0.5 1.4]) % Plot Power Coefficients
     if objsubj==1
         title('Objective Power Coefficients - Predictive Conditions')
     else
