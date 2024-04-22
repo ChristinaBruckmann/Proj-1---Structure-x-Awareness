@@ -1,21 +1,33 @@
 % TF Analysis
-function []=sxa_TF(subj)
+function []=sxa_TF(subj,baseline)
 %% TF Analysis
 % Input: Subject Number, generate plots (1/0)
 disp('Starting Time Frequency Analysis')
 singletrials=1; %(save single trials?)
+
 % Parameters
-triggercodes={71;72;73}; % Warning Signals per condition
-%triggercodes=[71 72 73]; % All Warning Signals (rhythm, interval, irregular)
-timerange=[-200 1500];
+if baseline
+    % Pre-Target Baseline
+    triggercodes={31;32;33}; % Start of trial
+    timerange=[0 1000]; % The shortest ITI is 1 second (jittered in experiment between 1s and 1.6s)
+else
+    % Around WS
+    triggercodes={71;72;73}; % Warning Signals per condition
+    timerange=[-200 1500];
+end
+
 paddingLength=500; % in ms
-TF_wavFreqs=1:40; % Range taken from Elmira, Assaf uses 1:30 in plos bio
+TF_wavFreqs=2.^[0:1/6:5]; % Log Range
 %alpharange=8:12;
 
 % Load Data
 cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Preprocessed'
 loadfilename=sprintf('EEG_SxA_Subj%i_Session2_pp.mat',subj);
-savefilename=sprintf('EEG_SxA_Subj%i_TF_SingleTrials.mat',subj);
+if baseline
+    savefilename=sprintf('EEG_SxA_Subj%i_TF_SingleTrials_BL.mat',subj);
+else
+    savefilename=sprintf('EEG_SxA_Subj%i_TF_SingleTrials.mat',subj);
+end
 load(loadfilename)
 
 % Extract Info and Data from File
@@ -32,7 +44,7 @@ for c=1:size(triggercodes,1) % For conditions
     sprintf('Proportion of artifact-free trials: %.2f', mean(isNotArtifact))
 
     % Remove trials with artifacts
-    artrej=1;
+    artrej=0;
     if artrej==1
         segmentedData=segmentedData(:,:,isNotArtifact==1); 
     end

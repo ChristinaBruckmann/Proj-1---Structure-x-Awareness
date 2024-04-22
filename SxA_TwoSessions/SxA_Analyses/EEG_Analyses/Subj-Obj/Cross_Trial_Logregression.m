@@ -4,6 +4,8 @@
 clear
 clc
 
+baselinecorr=1;
+
 % Parameters
 subj=[101 102 103 105 106 107 108 111 113 114];
 freqrange=[1:40];
@@ -13,23 +15,49 @@ cond=[1 2]; % which conditions (rhythm, interval, irregular)
 
 % R or matlab?
 matlab=0; 
-%% Load Data
 
+%% Load Data
 % Load TF Data
 for s=subj
     cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\TimeFreq'
     loadfilename=sprintf('EEG_SxA_Subj%i_TF_SingleTrials',s);
     load(loadfilename,'TF_Results_Trial','TF_trial_timeVec','TF_NotArtifact')
     savefilename=sprintf('EEG_SxA_Subj%i_Results_SubjObj.mat',s);
-    TF_res=TF_Results_Trial; % Size: frequencies timepoints trials electrodes
-    TF_time=TF_trial_timeVec;
-    TF_ArtVectors=TF_NotArtifact;
+    TF_res_WS=TF_Results_Trial; % Size: frequencies timepoints trials electrodes
+    TF_time_WS=TF_trial_timeVec;
+    TF_ArtVectors_WS=TF_NotArtifact;
+
+    if baselinecorr
+        clearvars TF_Results_Trial TF_trial_timeVec TF_NotArtifact
+        % Load Baseline Data
+        loadfilename=sprintf('EEG_SxA_Subj%i_TF_SingleTrials_BL',s);
+        load(loadfilename,'TF_Results_Trial','TF_trial_timeVec','TF_NotArtifact')
+        TF_res_BL=TF_Results_Trial; % Size: frequencies timepoints trials electrodes
+        TF_time_BL=TF_trial_timeVec;
+        TF_ArtVectors_BL=TF_NotArtifact;
+        clearvars TF_Results_Trial TF_trial_timeVec TF_NotArtifact
+
+        % Merge Artifact Vectors
+        TF_ArtVector=
+        % Remove Artifacts
+
+        % Baseline correct the data
+        for c=1:3
+            % Merge Artifact Vectors
+            TF_ArtVector{c}=TF_ArtVectors_BL{c}
+
+        end
+    else
+        TF_ArtVector=ArtVectors_WS;
+    end
+
+    % Remove Artifacts
 
     % Convert to power and average across electrodes
     for c=cond % for each condition (only predictable for now)
         % Select Data
-        data=TF_res{1, c};
-        timevec=TF_time{1, c};
+        data=TF_res_WS{1, c};
+        timevec=TF_time_WS{1, c};
         idx=timevec>=timep(1)&timevec<=timep(2);
         data=mean(data(idx,freqrange,:,electrodes),4); % average across electrodes (time, freq,trials,elecs)
         % Convert to Power
@@ -50,7 +78,7 @@ for s=subj
         obj_resp=behaviour{logidx,'Correct/Incorrect'};
         subj_resp=behaviour{logidx,'Binary Visibility'};
         contrast=behaviour{logidx,'Contrast Level'};
-        all_behav{c}=[contrast(logical(TF_ArtVectors{c})) obj_resp(logical(TF_ArtVectors{c}))  subj_resp(logical(TF_ArtVectors{c}))]; % save trial list with artifacts removed
+        all_behav{c}=[contrast(logical(TF_ArtVector{c})) obj_resp(logical(TF_ArtVector{c}))  subj_resp(logical(TF_ArtVector{c}))]; % save trial list with artifacts removed
 
         % Remove Catch Trials
         catchidx=all_behav{c}(:,1)~=0; % select non-catch trials only
@@ -60,7 +88,7 @@ for s=subj
         % For irreular, remove trials with target before 800
         if c==3
             targettime=behaviour{logidx,'Irregular Target Time'};
-            targettime=targettime(logical(TF_ArtVectors{c})); % remove artifacts
+            targettime=targettime(logical(TF_ArtVector{c})); % remove artifacts
             targettime=targettime(catchidx,:); % remove catch trials
             targetidx=ismember(targettime,[3,4,5]); % find trials with target at 800ms or later
             all_behav{c}=all_behav{c}(targetidx,:);
@@ -72,55 +100,48 @@ for s=subj
     savefilename2=sprintf("RInput_LogReg_S%i",s);
     save(savefilename2,'all_behav','data_power')
 end
-    %% Cross-Trial Regression
-    if matlab
-        % For each condition
-        for c=cond
-            currobj=all_behav{c}(:,2);
-            currsubj=all_behav{c}(:,3);
-            contrasts=all_behav{c}(:,1);
-            % At each frequency
-            for freq= 1:size(data_power{c},1)
-                % At each time point
-                for tp=1:size(data_power{c},2)
-                    % Select relevant data
-                    currpow=squeeze(data_power{c}(freq,tp,:));
+%% Cross-Trial Regression
+if matlab
+    % For each condition
+    for c=cond
+        currobj=all_behav{c}(:,2);
+        currsubj=all_behav{c}(:,3);
+        contrasts=all_behav{c}(:,1);
+        % At each frequency
+        for freq= 1:size(data_power{c},1)
+            % At each time point
+            for tp=1:size(data_power{c},2)
+                % Select relevant data
+                currpow=squeeze(data_power{c}(freq,tp,:));
 
-                    % run logistic regression
-                    [bob,~,statsob]=mnrfit([contrasts, currpow, currpow.*contrasts], currobj+1); % +1 needed as this function doesnt take 0 as category value
-                    [bsu,~,statssu]=mnrfit([contrasts, currpow, currpow.*contrasts], currsubj+1);
+                % run logistic regression
+                [bob,~,statsob]=mnrfit([contrasts, currpow, currpow.*contrasts], currobj+1); % +1 needed as this function doesnt take 0 as category value
+                [bsu,~,statssu]=mnrfit([contrasts, currpow, currpow.*contrasts], currsubj+1);
 
-                    % Save weights and stats
-                    tp_bob(tp,:)=bob;
-                    tp_bsu(tp,:)=bsu;
-                    tp_statsob(tp,:)=statsob;
-                    tp_statssu(tp,:)=statssu;
-                end
                 % Save weights and stats
-                freq_bob(freq,:,:)=tp_bob;
-                freq_bsu(freq,:,:)=tp_bsu;
-                freq_statsob(freq,:,:)=tp_statsob;
-                freq_statssu(freq,:,:)=tp_statssu;
+                tp_bob(tp,:)=bob;
+                tp_bsu(tp,:)=bsu;
+                tp_statsob(tp,:)=statsob;
+                tp_statssu(tp,:)=statssu;
             end
             % Save weights and stats
-            total_bob(c,:,:,:)=freq_bob; % (condition, frequency, timepoint,variables)
-            total_bsu(c,:,:,:)=freq_bsu;
-            total_pob(c,:,:,:)=freq_statsob.p;
-            total_psu(c,:,:,:)=freq_statssu.p;
+            freq_bob(freq,:,:)=tp_bob;
+            freq_bsu(freq,:,:)=tp_bsu;
+            freq_statsob(freq,:,:)=tp_statsob;
+            freq_statssu(freq,:,:)=tp_statssu;
         end
-        % Save
-        cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\Data Analysis\SxA_EEG_Analyses_Current\Results\SubjObj'
-        save(savefilename,'total_bob','total_bsu','total_statsob','total_statssu','cond','electrodes','freqrange','timep')
-    else
-
-        % Export to R
-
-        % Run R
-
-        % Save
-        cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\SxA_EEG_Analyses_Current\Results\SubjObj'
-        save(savefilename,'total_bob','total_bsu','total_statsob','total_statssu','cond','electrodes','freqrange','timep')
+        % Save weights and stats
+        total_bob(c,:,:,:)=freq_bob; % (condition, frequency, timepoint,variables)
+        total_bsu(c,:,:,:)=freq_bsu;
+        total_pob(c,:,:,:)=freq_statsob.p;
+        total_psu(c,:,:,:)=freq_statssu.p;
     end
+    % Save
+    cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\Data Analysis\SxA_EEG_Analyses_Current\Results\SubjObj'
+    save(savefilename,'total_bob','total_bsu','total_statsob','total_statssu','cond','electrodes','freqrange','timep')
+else
+    % Export to R
+    disp("Data for R Prepared. Continue Analysis in R now.")
 end
 
 %% Plot
