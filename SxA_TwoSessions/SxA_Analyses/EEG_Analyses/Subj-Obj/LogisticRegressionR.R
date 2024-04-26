@@ -1,4 +1,4 @@
-# Logistic Regression Alpha-Contrast-Perception for one subject
+# Logistic Regression Alpha-Contrast-Perception
 
 
 # Import Data from Matlab
@@ -6,7 +6,8 @@
 install.packages("R.matlab")
 library("R.matlab")
 
-subj<-c(106, 107, 108, 111, 113, 114)
+#subj<-c(106, 107, 108, 111, 113, 114)
+subj<-c(111)
 
 for (s in subj) {
   readname=sprintf('~/PhD Projects/Proj1 - StructurexAwareness/SxA_TwoSessions/SxA_Data/EEG Results/SubjObj/RInput_LogReg_S%i.mat',s)

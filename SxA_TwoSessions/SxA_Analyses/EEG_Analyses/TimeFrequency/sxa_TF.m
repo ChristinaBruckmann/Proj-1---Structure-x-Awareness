@@ -6,7 +6,7 @@ disp('Starting Time Frequency Analysis')
 singletrials=1; %(save single trials?)
 
 % Parameters
-if baseline
+if baseline % baseline means, that the whole code will extract the TF at the baseline (beginning of trial), note that it doesnt mean that the data itself is already baseline corrected.
     % Pre-Target Baseline
     triggercodes={31;32;33}; % Start of trial
     timerange=[0 1000]; % The shortest ITI is 1 second (jittered in experiment between 1s and 1.6s)

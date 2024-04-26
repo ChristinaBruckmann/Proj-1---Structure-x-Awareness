@@ -1,6 +1,5 @@
 %% Subj-Obj Power Cross Trial Regression Analysis
-%Fit a logistic curve for each time point and each frequency within the alpha range
-% single Trial TF data (and if needed the baseline TF data) has to have alrady been calculated
+% This code is similar to Cross-Trial_Logregression, but calculates and saves several baseline and zscore options per participant for later comparison
 clear
 clc
 
@@ -15,9 +14,9 @@ cond=[1 2 3]; % which conditions (rhythm, interval, irregular)
 % R or matlab?
 matlab=0; 
 
-baselinecorr=0; % Correct for pre-trial power (needs to be extracted with the TF function first)
-subtract=1; % subtract (1) or divide(0) by baseline? (only aplied if baselinecorr=1)
-calczscore=0; % z-score contrasts  and power values?
+% baselinecorr=1; % Correct for pre-trial power (needs to be extracted with the TF function first)
+% subtract=1; % subtract (1) or divide(0) by baseline? (only aplied if baselinecorr=1)
+% calczscore=1; % z-score contrasts  and power values?
 %% Load Data
 % Load TF Data
 for s=subj
@@ -30,6 +29,9 @@ for s=subj
     TF_ArtVectors_WS=TF_NotArtifact;
 
     % Cycle through the different options and save all of them
+    for baselinecorr=[0,1] %once corrected, once uncorrected
+         for calczscore=[0,1] % one time z-scored, one time without
+             for subtract= [0,1] % one time baseline subtracted once, divided
                 if baselinecorr
                     clearvars TF_Results_Trial TF_trial_timeVec TF_NotArtifact
 
@@ -115,8 +117,42 @@ for s=subj
                 end
 
                 cd  'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\SubjObj'
-                savefilename2=sprintf("RInput_LogReg_S%i",s);
+
+                % Choose file name
+                if baselinecorr 
+                    if subtract
+                        if calczscore
+                            savefilename2=sprintf("RInput_LogReg_S%i_bc_sb_z",s); % bc(baselinecorrect), sb(subtract), z(scored)
+                        else
+                            savefilename2=sprintf("RInput_LogReg_S%i_bc_sb",s); % bc(baselinecorrect), sb(subtract)
+                        end
+                    else
+                        if calczscore
+                            savefilename2=sprintf("RInput_LogReg_S%i_bc_dv_z",s); % bc(baselinecorrect), dv(divide), z(scored)
+                        else
+                            savefilename2=sprintf("RInput_LogReg_S%i_bc_sb",s); % bc(baselinecorrect), dv(divide)
+                        end
+                    end
+                else
+                    if subtract
+                        if calczscore
+                            savefilename2=sprintf("RInput_LogReg_S%i_uc_sb_z",s); % uc(uncorrected), sb(subtract), z(scored)
+                        else
+                            savefilename2=sprintf("RInput_LogReg_S%i_uc_sb",s); %  uc(uncorrected), sb(subtract)
+                        end
+                    else
+                        if calczscore
+                            savefilename2=sprintf("RInput_LogReg_S%i_uc_dv_z",s); %  uc(uncorrected), dv(divide), z(scored)
+                        else
+                            savefilename2=sprintf("RInput_LogReg_S%i_uc_sb",s); % uc(uncorrected), dv(divide)
+                        end
+                    end
+                end
                 save(savefilename2,'all_behav','data_power')
+            end
+
+        end
+    end
 end
 %% %% Cross-Trial Regression
 % if matlab

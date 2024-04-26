@@ -1,6 +1,6 @@
 # Convert R file into matlab-readable file
 
-subj<-c(101:103)
+subj<-c(105:108, 111, 113, 114)
 
 setwd("C:/Users/cbruckmann/Documents/PhD Projects/Proj1 - StructurexAwareness/SxA_TwoSessions/SxA_Data/EEG Results/SubjObj")
 
