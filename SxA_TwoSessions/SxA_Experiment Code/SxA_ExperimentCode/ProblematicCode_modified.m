@@ -1,5 +1,4 @@
 %% Structure x Awareness (Proj 1) Two Sessions
-% Post-TRF Version (changed jitter), no triggers
 % Two session version of Structure and Awareness Project. First
 % behavioural, second EEG. Includes Triggers. Needs
 % instructions_session1.mat and instructions_session2.mat, as well as
@@ -34,15 +33,15 @@ mixinfo.startblock=1; % always start with block 1, unless you aborted midway, th
 timeinfo.maxresptime=3; % in seconds, after exceeding this response time, a warning will be shown
 
 if ~experimentrun
-    floatwin=1; % opens PTB in a floating window as opposed to taking over the entire screen
+    floatwin=0; % opens PTB in a floating window as opposed to taking over the entire screen
     screeninfo.scopetest=0; % disables also skip sync, speedrun, practice and threshold
     screeninfo.speedrun=0; % disables practice, threshold and quickpractice
     SkipSync=1;
     timeinfo.recalcframes=0; % recalculate frames each trial with current frame rate?
-    PAScheck=0; %ask for reason why they chose that PAS response during practice
+    PAScheck=1; %ask for reason why they chose that PAS response during practice
 
     % Rough Threshold
-    visStiminfo.roughthreshold = 1; % run threshold estimation or run with standard mask contrast?
+    visStiminfo.roughthreshold = 0; % run threshold estimation or run with standard mask contrast?
     thresholdsteps = 0.1;
 
     % Initial Practice
@@ -74,7 +73,7 @@ elseif experimentrun && session_n==1
     floatwin=0; % opens PTB in a floating window as opposed to taking over the entire screen
 
     % Rough Threshold
-    visStiminfo.roughthreshold = 1; % run threshold estimation or run with standard mask contrast?
+    visStiminfo.roughthreshold = 0; % run threshold estimation or run with standard mask contrast?
     thresholdsteps = 0.1;
 
     % Initial Practice
@@ -82,14 +81,14 @@ elseif experimentrun && session_n==1
     initialpractice2=1; % practice with threshold targets and irregular pattern
     initialpractice3=1;
 
-     % 2AFC
+    % 2AFC
     twoafc=1;
 
     % Catch trials for EEG?
     mixinfo.nCatchSample = 0; % catch trials per nContrasts (if 3 --> 36 catch trials for 12 samples)
     mixinfo.nCatchSampleirr = 0; % more samples (if 2 --> 40 catch trials for 12 samples)
 % 
-     HideCursor;
+    HideCursor;
 elseif experimentrun && session_n==2
     screeninfo.scopetest=0; % disables also skip sync, speedrun, practice and threshold
     screeninfo.speedrun=0; % disables practice, threshold and quickpractice
@@ -252,14 +251,14 @@ end
 demogr.subj=subj;
 save([fileNameAll '.mat'], 'demogr')
 
-% % Trigger Set Up
-% 
-% timeinfo.triggerPortAddress=hex2dec('FFF8');
-% 
-% timeinfo.triggerPort=io64;
-% s=io64(timeinfo.triggerPort)
-% pause(1)
-% io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
+% Trigger Set Up
+
+timeinfo.triggerPortAddress=hex2dec('FFF8');
+
+timeinfo.triggerPort=io64;
+s=io64(timeinfo.triggerPort)
+pause(1)
+io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
 
 % Setup PTB
 PsychDefaultSetup(2);
@@ -338,8 +337,8 @@ if screeninfo.scopetest
 end
 
 % % Load Images
-[rhyimg, rhyColorMap] = imread("Rhythm.png");
-[intimg, intColorMap] = imread("Interval.png");
+[rhyimg, rhyColorMap] = imread("rhyimg.png");
+[intimg, intColorMap] = imread("intimg.png");
 
 % Turn into textures
 rhyimgtex = Screen('MakeTexture', screeninfo.win, rhyimg);
@@ -856,7 +855,7 @@ try
         end
         %% Threshold
         if visStiminfo.roughthreshold==1
-            thresholdrevers=2; %will crash if you put 1, so put at least 2, for experiment use 20
+            thresholdrevers=20;  % will crash if you put 1, so put at least 2, for experiment use 20
             threshrun=1;
             thrtrialoverall=1;
             roughthreshold=1;
@@ -865,7 +864,7 @@ try
                 thresholdfound=0;
                 adjusted=0;
                 thc=1; % counter
-                prevstep=0;
+                prevstep=0; % up or down?
                 currreverse=0; % how many reversals up until now?
                 doublelow=0; % not seen twice at lowest contrast
                 firstreversal=0; % at which trial did the first reversal happen?
@@ -970,7 +969,6 @@ try
                                         DrawFormattedText(screeninfo.win,contrasttext, 'center', 'center', screeninfo.fontcolour);
                                         Screen('Flip', screeninfo.win);
                                         KbStrokeWait;
-                                        KbStrokeWait;
                                         newcontrast=adjustintensity(screeninfo, visStiminfo.gaborpercent); % confirm new threshold
                                         Screen('Flip', screeninfo.win);
                                         Confirmationtext=sprintf('New intensity: %.2f \n Correct? (y-2/n-3)',newcontrast);
@@ -1001,7 +999,7 @@ try
                                 else
                                 end
                             end
-                            break 
+                            break
                         elseif currreverse==thresholdrevers % if staircase has turned around N times
                             while ~finishadjusting==1
                                 % Calculate threshold (average from first reversal to end)
@@ -1010,9 +1008,8 @@ try
                                 resultscurrentrun=subresults.thresholdresults(3,subresults.thresholdresults(1,:)==threshrun);
                                 subresults.calculatedthreshold(threshrun)=mean(resultscurrentrun(firstreversal:end));
                                 recintensity=(visStiminfo.gaborpercent/10)*(subresults.calculatedthreshold(threshrun)*10)*2;
-                                contrasttext=sprintf('Current intensity: %.2f \n\n Recommended Intensity: %.2f \n\n Adjust intensity? (y-2/n-3)',visStiminfo.gaborpercent,recintensity);
-                                %Confirmationtext=sprintf('Threshold reached. \n\n Threshold: %.2f \n\n Adjust intensity? (y-2/n-3)',subresults.calculatedthreshold(threshrun));
-                                DrawFormattedText(screeninfo.win,contrasttext, 'center', 'center',screeninfo.fontcolour);
+                                Confirmationtext=sprintf('Current intensity: %.2f \n\n Recommended Intensity: %.2f \n\n Type new intensity (0.01-0.99):',visStiminfo.gaborpercent,recintensity);
+                                DrawFormattedText(screeninfo.win,Confirmationtext, 'center', 'center',screeninfo.fontcolour);
                                 Screen('Flip', screeninfo.win);
                                 [~, keyNamethr, ~]=KbStrokeWait;
                                 if strcmp(KbName(keyNamethr),'9')==1 || strcmp(KbName(keyNamethr),'9(')==1
@@ -1258,9 +1255,9 @@ try
                 end
 
  
-% %                 For a participant to be exposed to all contrasts, it has to
-% %                 run all the trials. if the experimenter should be able to
-% %                 skip part of the practice, activate the code below.
+%                 For a participant to be exposed to all contrasts, it has to
+%                 run all the trials. if the experimenter should be able to
+%                 skip part of the practice, activate the code below.
                             stoppr=0;
                             if nprac>=minvistrials3
                                 contans=0;
@@ -1268,7 +1265,7 @@ try
                                 DrawFormattedText(screeninfo.win, 'Keep practicing? (y2/n3)', 'center', 'center',screeninfo.fontcolour);
                                 Screen('Flip', screeninfo.win);
                                 [~, keyNamethr, ~]=KbStrokeWait;
-                                if strcmp(KbName(keyNamethr),'e')==1 
+                                if strcmp(KbName(keyNamethr),'e')==1
                                     DrawFormattedText(screeninfo.win,'Continue (c)? Exit (e)?', 'center', 'center', screeninfo.fontcolour);
                                     Screen('Flip', screeninfo.win);
                                     [~, keyNamethr, ~]=KbStrokeWait;
@@ -1588,12 +1585,11 @@ try
             Screen('Flip', screeninfo.win);
             %Trials
 
-%             io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 254); % start recording
-%             pause(5)
-%             io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
+            io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 254); % start recording
+            pause(5)
+            io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
 
-            %for t=1:blocklength
-            for t=1
+            for t=1:blocklength
                 Screen('Flip', screeninfo.win,[],1);
                 [RT, OrResp, OrRespEval, VisResp, ObjWarn, SubjWarn, FrameRate,IrrCueTimes]=trialfunctionpro1(currentcondition,t,0,screeninfo, visStiminfo, timeinfo, textinfo, alltrials,counter,0,0);
 
@@ -1650,12 +1646,12 @@ try
             totalaccuracy= mean(totalperf,'omitnan'); % total accuracy of all trials SO FAR
             accuracy=[blockaccuracy totalaccuracy];
             
-            % DrawFormattedText(screeninfo.win, 'Loading.', 'center', 'center',screeninfo.fontcolour);
-            % Screen('Flip', screeninfo.win);
-            % pause(5)
-            % io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 255); % Stop recording
-            % pause(1)
-            % io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
+            DrawFormattedText(screeninfo.win, 'Please wait.', 'center', 'center',screeninfo.fontcolour);
+            Screen('Flip', screeninfo.win);
+            pause(5)
+            io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 255); % Stop recording
+            pause(1)
+            io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
 
             % Pause Between Blocks (and disaplay accuracy)
             if b<3
@@ -1696,8 +1692,8 @@ try
                         while ~finishadjusting2
                             contrasttext='Current intensity: %.2f \n\n Type new intensity (0.01-0.99):';
                             newintensity=adjustintensity(screeninfo, visStiminfo.gaborpercent);
-                            Confirmationtext=sprintf('New intensity: %.2f \n\n Correct? (y-2/n-3)',newintensity);
-                            DrawFormattedText(screeninfo.win,Confirmationtext, 'center', 'center', screeninfo.fontcolour);
+                            ThresholdReachedText=sprintf('New intensity: %.2f \n\n Correct? (y-2/n-3)',newintensity);
+                            DrawFormattedText(screeninfo.win,ThresholdReachedText, 'center', 'center', screeninfo.fontcolour);
                             Screen('Flip', screeninfo.win);
                             [~, keyNamethr, ~]=KbStrokeWait;
                             if strcmp(KbName(keyNamethr),'9')==1 || strcmp(KbName(keyNamethr),'9(')==1
@@ -2644,11 +2640,11 @@ if ~justtar
                 visStiminfo.lineWidthPix, screeninfo.black, [screeninfo.xCenter screeninfo.yCenter], 2);
             Screen('Flip', screeninfo.win);
             cnoise=cnoise+1;
-%             if fixtime==1
-%                 io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(1));
-%             elseif fixtime==2
-%                 io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
-%             end
+            if fixtime==1
+                io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(1));
+            elseif fixtime==2
+                io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
+            end
         end
         for rhythms=1:3
             for CueDura=1:timeinfo.CueDurFr
@@ -2656,11 +2652,11 @@ if ~justtar
                 Screen('DrawTexture', screeninfo.win, visStiminfo.cuetex(ccue), [], [], 0);
                 Screen('Flip', screeninfo.win);
                 ccue=ccue+1;
-%                 if CueDura==1
-%                     io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(1+rhythms));
-%                 end
+                if CueDura==1
+                    io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(1+rhythms));
+                end
             end
-%             io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
+            io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
             for rhythISI=1:timeinfo.rhyISIfr
                 DrawFormattedText(screeninfo.win,blocklabel,'center', screeninfo.yCenter-(0.25*screeninfo.axisy(2)),screeninfo.fontcolour);
                 Screen('DrawTexture', screeninfo.win, noisetex(cnoise), [], [], 0);
@@ -2676,10 +2672,10 @@ if ~justtar
             Screen('Flip', screeninfo.win);
             cwarn=cwarn+1;
             if WarnTime==1
-%                 io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(5));
+                io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(5));
             end
         end
-%         io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
+        io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
         for rhythISI=1:timeinfo.rhyISIfr
             DrawFormattedText(screeninfo.win,blocklabel,'center', screeninfo.yCenter-(0.25*screeninfo.axisy(2)),screeninfo.fontcolour);
             Screen('DrawTexture', screeninfo.win, noisetex(cnoise), [], [], 0);
@@ -2695,11 +2691,11 @@ if ~justtar
                 visStiminfo.lineWidthPix, screeninfo.black, [screeninfo.xCenter screeninfo.yCenter], 2);
             Screen('Flip', screeninfo.win);
             cnoise=cnoise+1;
-%             if fixtime==1
-%                 io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(1));
-%             elseif fixtime==2
-%                 io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
-%             end
+            if fixtime==1
+                io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(1));
+            elseif fixtime==2
+                io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
+            end
         end
         %     for intervals=1:2
         for CueDura=1:timeinfo.CueDurFr
@@ -2707,11 +2703,11 @@ if ~justtar
             Screen('DrawTexture', screeninfo.win, visStiminfo.cuetex(ccue), [], [], 0);
             Screen('Flip', screeninfo.win);
             ccue=ccue+1;
-%             if CueDura==1
-%                  io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(2));
-%             end
+            if CueDura==1
+                 io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(2));
+            end
         end
-%         io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
+        io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
         for intervalISI=1:timeinfo.intISIfr
             DrawFormattedText(screeninfo.win,blocklabel,'center', screeninfo.yCenter-(0.25*screeninfo.axisy(2)),screeninfo.fontcolour);
             Screen('DrawTexture', screeninfo.win, noisetex(cnoise), [], [], 0);
@@ -2724,11 +2720,11 @@ if ~justtar
             Screen('DrawTexture', screeninfo.win, visStiminfo.cuetex(ccue), [], [], 0);
             Screen('Flip', screeninfo.win);
             ccue=ccue+1;
-%             if CueDura==1
-%                 io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(3));
-%             end
+            if CueDura==1
+                io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(3));
+            end
         end
-%         io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
+        io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
         for intintISI=1:timeinfo.bintTimefr
             DrawFormattedText(screeninfo.win,blocklabel,'center', screeninfo.yCenter-(0.25*screeninfo.axisy(2)),screeninfo.fontcolour);
             Screen('DrawTexture', screeninfo.win, noisetex(cnoise), [], [], 0);
@@ -2745,11 +2741,11 @@ if ~justtar
             Screen('DrawTexture', screeninfo.win, visStiminfo.warntex(cwarn), [], [], 0);
             Screen('Flip', screeninfo.win);
             cwarn=cwarn+1;
-%             if WarnTime==1
-%                 io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(5));
-%             end
+            if WarnTime==1
+                io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(5));
+            end
         end
-%         io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
+        io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
         for intervalISI=1:timeinfo.intISIfr
             DrawFormattedText(screeninfo.win,blocklabel,'center', screeninfo.yCenter-(0.25*screeninfo.axisy(2)),screeninfo.fontcolour);
             Screen('DrawTexture', screeninfo.win, noisetex(cnoise), [], [], 0);
@@ -2765,11 +2761,11 @@ if ~justtar
                 visStiminfo.lineWidthPix, screeninfo.black, [screeninfo.xCenter screeninfo.yCenter], 2);
             Screen('Flip', screeninfo.win);
             cnoise=cnoise+1;
-%             if fixtime==1
-%                 io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(1));
-%             elseif fixtime==2
-%                 io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
-%             end
+            if fixtime==1
+                io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(1));
+            elseif fixtime==2
+                io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
+            end
         end
     
         for irrint=1:3 % amount of intervals before target -1
@@ -2779,11 +2775,11 @@ if ~justtar
                 Screen('DrawTexture', screeninfo.win, visStiminfo.cuetex(ccue), [], [], 0);
                 Screen('Flip', screeninfo.win);
                 ccue=ccue+1;
-%                 if CueDura==1
-%                     io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(1+irrint));
-%                 end
+                if CueDura==1
+                    io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(1+irrint));
+                end
             end
-%             io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
+            io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
             for intervalISI=1:timeinfo.irrISIfr(irrint)
                 DrawFormattedText(screeninfo.win,blocklabel,'center', screeninfo.yCenter-(0.25*screeninfo.axisy(2)),screeninfo.fontcolour);
                 Screen('DrawTexture', screeninfo.win, noisetex(cnoise), [], [], 0);
@@ -2798,11 +2794,11 @@ if ~justtar
             Screen('DrawTexture', screeninfo.win, visStiminfo.warntex(cwarn), [], [], 0);
             Screen('Flip', screeninfo.win);
             cwarn=cwarn+1;
-%             if WarnTime==1
-%                 io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(5));
-%             end
+            if WarnTime==1
+                io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(5));
+            end
         end
-%         io64(timeinfo.triggerPort, timeinfo.triggerPortAddress,0);
+        io64(timeinfo.triggerPort, timeinfo.triggerPortAddress,0);
         for intervalISI=1:currirrtartimefr
             DrawFormattedText(screeninfo.win,blocklabel,'center', screeninfo.yCenter-(0.25*screeninfo.axisy(2)),screeninfo.fontcolour);
             Screen('DrawTexture', screeninfo.win,noisetex(cnoise), [], [], 0);
@@ -2825,9 +2821,9 @@ for TarTime=1:timeinfo.TarDurFr
     DrawFormattedText(screeninfo.win,blocklabel,'center', screeninfo.yCenter-(0.25*screeninfo.axisy(2)),screeninfo.fontcolour);
     Screen('DrawTexture', screeninfo.win, visStiminfo.currTarget(TarTime));
     Screen('Flip', screeninfo.win);
-%     if TarTime==1
-%         io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(6));
-%     end
+    if TarTime==1
+        io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(6));
+    end
 end
 
 for QuestInt=1:timeinfo.TargQFr
@@ -2842,7 +2838,7 @@ Screen('DrawLines', screeninfo.win, visStiminfo.fixCoords,...
     visStiminfo.lineWidthPix, screeninfo.black, [screeninfo.xCenter screeninfo.yCenter], 2);
 Screen('Flip', screeninfo.win);
 
-% io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
+io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
 pause(preqtime)
 
 % Request Orientation Reponse
@@ -2854,9 +2850,9 @@ if (alltrials(count,1)>0) && ~ screeninfo.speedrun && ~screeninfo.scopetest % sk
     startTime=GetSecs;
     orresponded=0;
     visresponded=0;
-%     io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(7));
-%     WaitSecs(0.01)
-%     io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
+    io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(7));
+    WaitSecs(0.01)
+    io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
     while ~orresponded
         DrawFormattedText(screeninfo.win,blocklabel,'center', screeninfo.yCenter-(0.25*screeninfo.axisy(2)),screeninfo.fontcolour);
         DrawFormattedText(screeninfo.win, textinfo.OrientRespPrompt, 'center', 'center', screeninfo.fontcolour);
@@ -2872,10 +2868,10 @@ if (alltrials(count,1)>0) && ~ screeninfo.speedrun && ~screeninfo.scopetest % sk
                 OrResp=1; % left
                 orresponded=1;
                 if trialorient==1 % left
-%                     io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(8));
+                    io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(8));
                     OrRespEval=1;
                 else
-%                     io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(9));
+                    io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(9));
                     OrRespEval=0;
                 end
             elseif strcmp(KbName(keyName), textinfo.KeyRight)==1
@@ -2883,10 +2879,10 @@ if (alltrials(count,1)>0) && ~ screeninfo.speedrun && ~screeninfo.scopetest % sk
                 orresponded=1;
                 OrResp=0; %Right
                 if trialorient==0 %Right
-%                     io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(8));
+                    io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(8));
                     OrRespEval=1;
                 else
-%                     io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(9));
+                    io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(9));
                     OrRespEval=0;
                 end
             elseif strcmp(KbName(keyName),'e')==1
@@ -2911,9 +2907,9 @@ if (alltrials(count,1)>0) && ~ screeninfo.speedrun && ~screeninfo.scopetest % sk
         end
         currtime=GetSecs;
     end
-%     WaitSecs(0.1)
-%     io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
-%     WaitSecs(0.1)
+    WaitSecs(0.1)
+    io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
+    WaitSecs(0.1)
     % Give participant a speed reminder if they received a warning
 
     if warningobj
@@ -2930,9 +2926,9 @@ if (alltrials(count,1)>0) && ~ screeninfo.speedrun && ~screeninfo.scopetest % sk
 %         pause(0.2)
         currtime=0;
         startTime=GetSecs;
-%         io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(10));
-%         WaitSecs(0.01)
-%         io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
+        io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(10));
+        WaitSecs(0.01)
+        io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
         while ~visresponded
             DrawFormattedText(screeninfo.win,blocklabel,'center', screeninfo.yCenter-(0.25*screeninfo.axisy(2)),screeninfo.fontcolour);
             DrawFormattedText(screeninfo.win, textinfo.VisRespPrompt, 'center', 'center', screeninfo.fontcolour);
@@ -2944,19 +2940,19 @@ if (alltrials(count,1)>0) && ~ screeninfo.speedrun && ~screeninfo.scopetest % sk
             [keyDown, ~, keyName] = KbCheck;
             if keyDown
                 if strcmp(KbName(keyName), textinfo.PAS1)==1
-%                     io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(11));
+                    io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(11));
                     visresponded=1;
                     VisResp=0;
                 elseif strcmp(KbName(keyName), textinfo.PAS2)==1
-%                     io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(12));
+                    io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(12));
                     visresponded=1;
                     VisResp=1;
                 elseif strcmp(KbName(keyName), textinfo.PAS3)==1
-%                     io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(13));
+                    io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(13));
                     visresponded=1;
                     VisResp=2;
                 elseif strcmp(KbName(keyName), textinfo.PAS4)==1
-%                     io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(14));
+                    io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, triggerlist(14));
                     visresponded=1;
                     VisResp=3;
                 elseif strcmp(KbName(keyName),'e')==1
@@ -2982,7 +2978,7 @@ if (alltrials(count,1)>0) && ~ screeninfo.speedrun && ~screeninfo.scopetest % sk
         VisResp=NaN;
     end
     WaitSecs(0.1)
-%     io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
+    io64(timeinfo.triggerPort, timeinfo.triggerPortAddress, 0);
     % Give participant a speed reminder if they received a warning
     if subwarning
         DrawFormattedText(screeninfo.win,blocklabel,'center', screeninfo.yCenter-(0.25*screeninfo.axisy(2)),screeninfo.fontcolour);
@@ -3016,7 +3012,7 @@ function [newintensity]=adjustintensity(screeninfo, gaborcontrast)
 adjusting=1;
 currlevel=gaborcontrast;
     while adjusting
-    currentleveltext=sprintf('Current contrast level: %.2f',currlevel);
+    currentleveltext=sprintf('Current luminance level: %.2f',currlevel);
     DrawFormattedText(screeninfo.win,currentleveltext, 'center', 'center', screeninfo.fontcolour);
     Screen('Flip', screeninfo.win);
     

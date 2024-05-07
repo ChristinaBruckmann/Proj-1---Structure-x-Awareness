@@ -4,7 +4,7 @@ clear
 clc
 
 % Parameters
-subj=[111];
+subj=[101 102 103 105 114];
 %freqrange=[1:40];
 freqrange=[1:31];
 electrodes=[25:30 62:64]; % occipital
@@ -130,7 +130,7 @@ for s=subj
                         if calczscore
                             savefilename2=sprintf("RInput_LogReg_S%i_bc_dv_z",s); % bc(baselinecorrect), dv(divide), z(scored)
                         else
-                            savefilename2=sprintf("RInput_LogReg_S%i_bc_sb",s); % bc(baselinecorrect), dv(divide)
+                            savefilename2=sprintf("RInput_LogReg_S%i_bc_dv",s); % bc(baselinecorrect), dv(divide)
                         end
                     end
                 else
@@ -144,7 +144,7 @@ for s=subj
                         if calczscore
                             savefilename2=sprintf("RInput_LogReg_S%i_uc_dv_z",s); %  uc(uncorrected), dv(divide), z(scored)
                         else
-                            savefilename2=sprintf("RInput_LogReg_S%i_uc_sb",s); % uc(uncorrected), dv(divide)
+                            savefilename2=sprintf("RInput_LogReg_S%i_uc_dv",s); % uc(uncorrected), dv(divide)
                         end
                     end
                 end

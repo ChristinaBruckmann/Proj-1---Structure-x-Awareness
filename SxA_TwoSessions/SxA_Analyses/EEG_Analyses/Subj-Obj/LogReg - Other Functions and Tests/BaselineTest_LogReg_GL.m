@@ -3,7 +3,7 @@
 % Only Interval Objective to reduce amount of data to process
 clear
 clc
-subj=[111];
+subj=[101, 102, 103, 105, 111, 114];
 plotsubj=1;
 timep=[250 1200]; % (data aligned to warning signal, target at 800)
 
@@ -16,38 +16,38 @@ cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_T
 for s=1:length(subj)
 
     % Baseline - Divided - Zscored
-    loadfilename1=sprintf('bc_dv_z_Subj%i_ObjectiveIntervalAlpha_power.txt',subj(s));
-    loadfilename2=sprintf('bc_dv_z_Subj%i_ObjectiveIntervalAlpha_contrast.txt',subj(s));
+    loadfilename1=sprintf('bc_dv_z_Subj%i_SubjectiveIntervalAlpha_power.txt',subj(s));
+    loadfilename2=sprintf('bc_dv_z_Subj%i_SubjectiveIntervalAlpha_contrast.txt',subj(s));
     logregcoeff(s,1,1,1,1,:,:)=readmatrix(loadfilename1); % read and save contrast coefficients
     logregcoeff(s,1,1,1,2,:,:)=readmatrix(loadfilename2); % read and save power coefficients
 
     % Baseline - Subtracted - Zscored
-    loadfilename1=sprintf('bc_sb_z_Subj%i_ObjectiveIntervalAlpha_power.txt',subj(s));
-    loadfilename2=sprintf('bc_sb_z_Subj%i_ObjectiveIntervalAlpha_contrast.txt',subj(s));
+    loadfilename1=sprintf('bc_sb_z_Subj%i_SubjectiveIntervalAlpha_power.txt',subj(s));
+    loadfilename2=sprintf('bc_sb_z_Subj%i_SubjectiveIntervalAlpha_contrast.txt',subj(s));
     logregcoeff(s,1,2,1,1,:,:)=readmatrix(loadfilename1); % read and save contrast coefficients
     logregcoeff(s,1,2,1,2,:,:)=readmatrix(loadfilename2); % read and save power coefficients
 
     % Baseline - Divided
-    loadfilename1=sprintf('bc_dv_Subj%i_ObjectiveIntervalAlpha_power.txt',subj(s));
-    loadfilename2=sprintf('bc_dv_Subj%i_ObjectiveIntervalAlpha_contrast.txt',subj(s));
+    loadfilename1=sprintf('bc_dv_Subj%i_SubjectiveIntervalAlpha_power.txt',subj(s));
+    loadfilename2=sprintf('bc_dv_Subj%i_SubjectiveIntervalAlpha_contrast.txt',subj(s));
     logregcoeff(s,1,1,2,1,:,:)=readmatrix(loadfilename1); % read and save contrast coefficients
     logregcoeff(s,1,1,2,2,:,:)=readmatrix(loadfilename2); % read and save power coefficients
 
     %Baseline - Subtracted
-    loadfilename1=sprintf('bc_sb_Subj%i_ObjectiveIntervalAlpha_power.txt',subj(s));
-    loadfilename2=sprintf('bc_sb_Subj%i_ObjectiveIntervalAlpha_contrast.txt',subj(s));
+    loadfilename1=sprintf('bc_sb_Subj%i_SubjectiveIntervalAlpha_power.txt',subj(s));
+    loadfilename2=sprintf('bc_sb_Subj%i_SubjectiveIntervalAlpha_contrast.txt',subj(s));
     logregcoeff(s,1,2,2,1,:,:)=readmatrix(loadfilename1); % read and save contrast coefficients
     logregcoeff(s,1,2,2,2,:,:)=readmatrix(loadfilename2); % read and save power coefficients
 
     % Uncorrected - Zscored
-    loadfilename1=sprintf('uc_sb_z_Subj%i_ObjectiveIntervalAlpha_power.txt',subj(s));
-    loadfilename2=sprintf('uc_sb_z_Subj%i_ObjectiveIntervalAlpha_contrast.txt',subj(s));
+    loadfilename1=sprintf('uc_dv_z_Subj%i_SubjectiveIntervalAlpha_power.txt',subj(s));
+    loadfilename2=sprintf('uc_dv_z_Subj%i_SubjectiveIntervalAlpha_contrast.txt',subj(s));
     logregcoeff(s,2,1,1,1,:,:)=readmatrix(loadfilename1); % read and save contrast coefficients
     logregcoeff(s,2,1,1,2,:,:)=readmatrix(loadfilename2); % read and save power coefficients
 
     % Uncorrected
-    loadfilename1=sprintf('uc_sb_Subj%i_ObjectiveIntervalAlpha_power.txt',subj(s));
-    loadfilename2=sprintf('uc_sb_Subj%i_ObjectiveIntervalAlpha_contrast.txt',subj(s));
+    loadfilename1=sprintf('uc_dv_Subj%i_SubjectiveIntervalAlpha_power.txt',subj(s));
+    loadfilename2=sprintf('uc_dv_Subj%i_SubjectiveIntervalAlpha_contrast.txt',subj(s));
     logregcoeff(s,2,1,2,1,:,:)=readmatrix(loadfilename1); % read and save contrast coefficients
     logregcoeff(s,2,1,2,2,:,:)=readmatrix(loadfilename2); % read and save power coefficients +
 
