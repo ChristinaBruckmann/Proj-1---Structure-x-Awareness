@@ -3,9 +3,9 @@ clear
 clc
 
 catchonly=0;
-basec=0; % baseline correction?
+basec=1; % baseline correction?
 %subj=[14 15 17:22];
-subj=[101:103 105 106:108 111 113 114];
+subj=[101:103 105 106:108 111 113 114 117 118 119];
 %subj=[17:22 101:103 105 106:108 113 114];
 
 % Load Data
@@ -191,6 +191,7 @@ xline(800,'b--','Predicted Target');
 
 % Variance Plot
 figure;
+%colourvecs=[[0.93,0.69,0.13]]
 for c=1:3
 varplot(gl_tf_timeVec(1).alpha_timeVecTotal{1, 1},squeeze(mean(datatoplot(c,:,alpharange,:),4)),'linewidth',2)
 hold on

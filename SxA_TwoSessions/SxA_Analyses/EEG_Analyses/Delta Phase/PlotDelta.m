@@ -6,10 +6,10 @@ clc
 
 batches=[2]; % 3 is combined
 subj1=[17:22];
-subj2=[101:103 105:108 113 114];
-subj3=[17:22 101:103 105:108 113 114];
+subj2=[101:103 105:108 113 114 117 118 119];
+subj3=[17:22 101:103 105:108 113 114 117 118 119];
 clusters=[1 2]; % (1-occipital, 2- central)
-trialtypes= [1 2]; % (1-all trials, 2 - catch trials)
+trialtypes= [1]; % (1-all trials, 2 - catch trials)
 plotindividuals=[0]; % plot also individual participants
 %% Dir
 cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\DeltaRes'
@@ -157,5 +157,87 @@ for cbatch=1:length(batches)
             title(t,headline)
             clearvars -except t subj elec subj1 subj2 subj3 clusters catchonly trialtypes cbatch trialt ccluster batches plotindividuals
         end
+    end
+end
+
+
+
+%% Topography
+
+for cbatch=1:length(batches)
+
+    figure; t = tiledlayout('flow');
+
+    % Define (change this, this is buggy for the wrong input)
+    if batches(cbatch)==1
+        subj=subj1;
+    elseif batches(cbatch)==2
+        subj=subj2;
+    elseif batches(cbatch)==3
+        subj=subj3;
+    end
+
+    for trialt=trialtypes
+        % Define
+        if trialt==1
+            catchonly=0;
+            timeROI=[600 750]; % target at 800
+        else
+            catchonly=1;
+            timeROI=[-200 -50]; % target at 0
+        end
+
+        % Load
+        for s=1:length(subj)
+            if ~catchonly
+                loadfilename=sprintf('OccipitalAll_Subj%i',subj(s));
+                load(loadfilename,"Delta_SingleTrials_occ","ITPCdelta_timevec_occ","ITPCdelta_nTrials_occ") %(time points x electrodes x trials)
+                for c=1:3
+                    Delta_SingleTrials(s,c,:,:)=circ_r(Delta_SingleTrials_occ{c},[], [], 3);
+                    Delta_TimeVec(s,c,:)=ITPCdelta_timevec_occ{c};
+                    Delta_Ntrials(s,c,:)=ITPCdelta_nTrials_occ(c);
+                end
+                subtitle='All Trials';
+            elseif catchonly
+                loadfilename=sprintf('OccipitalCatch_Subj%i',subj(s));
+                load(loadfilename,"Delta_SingleTrials_occ_catch","ITPCdelta_timevec_occ_catch","ITPCdelta_nTrials_occ_catch") %(time points x electrodes x trials)
+                for c=1:3
+                    Delta_SingleTrials(s,c,:,:)=circ_r(Delta_SingleTrials_occ_catch{c},[], [], 3);
+                    Delta_TimeVec(s,c,:)=ITPCdelta_timevec_occ_catch{c};
+                    Delta_Ntrials(s,c,:)=ITPCdelta_nTrials_occ_catch(c);
+                end
+                subtitle='Catch';
+            end
+        end
+
+        % Average
+        timeVec=squeeze(Delta_TimeVec(1,1,:)); % All TV are identical
+        nTrials=mean(Delta_Ntrials,1); % nTrials for chance ITPC calculation
+
+        for c=1:3
+            GL_Mean(c,:,:)=squeeze(mean(Delta_SingleTrials(:,c,:,:),1)); % average across participants (input: subj x cond x time points x electrodes | output: condition x time points x electrodes)
+            logtimeROI=timeVec>=timeROI(1) & timeVec<=timeROI(2);
+            GL_mean_tw(c,:)=squeeze(mean(GL_Mean(c,logtimeROI,:),2)); % average across time window (output: condition x electrodes)
+        end
+
+
+        % Plot
+        figure;
+        for c=1:3
+            % topography
+            subplot(1,3,c)
+            curr_topo_data=GL_mean_tw(c,:);
+            topoplot(curr_topo_data,'head64.locs','electrodes','on','style','map','shading','interp','maplimits',[0  0.3]); % ,'maplimits',[-0.2 0.2]
+            colorbar
+            if c==1
+                title('Rhythm')
+            elseif c==2
+                title('Interval')
+            elseif c==3
+                title('Irregular')
+            end
+        end
+        title(t,headline)
+        clearvars -except t subj elec subj1 subj2 subj3 clusters catchonly trialtypes cbatch trialt ccluster batches plotindividuals
     end
 end

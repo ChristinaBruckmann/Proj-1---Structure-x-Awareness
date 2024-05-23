@@ -8,9 +8,9 @@ cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_T
 % Load Data And Merge
 dataforpsignifit_total=zeros(2,3,10,3); %obj/subj, condition, levels, variables
 
-for s=subjects
-loadname=sprintf('SxA_ResultsSubject%i_Total.mat',s);
-load(loadname,'dataforpsignifit')
+for s=1:length(subjects)
+loadname=sprintf('SxA_ResultsSubject%i_Total.mat',subjects(s));
+load(loadname,'dataforpsignifit','midpoints')
 % Objective
 dataforpsignifit_total(1,1,:,:)=squeeze(dataforpsignifit_total(1,1,:,:)) + dataforpsignifit{1, 1}.obj;
 dataforpsignifit_total(1,2,:,:)=squeeze(dataforpsignifit_total(1,2,:,:)) + dataforpsignifit{1, 2}.obj;
@@ -19,6 +19,16 @@ dataforpsignifit_total(1,3,:,:)=squeeze(dataforpsignifit_total(1,3,:,:)) + dataf
 dataforpsignifit_total(2,1,:,:)=squeeze(dataforpsignifit_total(2,1,:,:)) + dataforpsignifit{1, 1}.subj;
 dataforpsignifit_total(2,2,:,:)=squeeze(dataforpsignifit_total(2,2,:,:)) + dataforpsignifit{1, 2}.subj;
 dataforpsignifit_total(2,3,:,:)=squeeze(dataforpsignifit_total(2,3,:,:)) + dataforpsignifit{1, 3}.subj;
+
+% Also load individual psigifit results to obtain thresholds
+% Objective
+midpoints_obj(s,1)=midpoints.rhyobj;
+midpoints_obj(s,2)=midpoints.intobj;
+midpoints_obj(s,3)=midpoints.irrobj;
+% Subjective 
+midpoints_subj(s,1)=midpoints.rhysubj;
+midpoints_subj(s,2)=midpoints.intsubj;
+midpoints_subj(s,3)=midpoints.irrsubj;
 end
 
 % Fix levels (imported weirdly)
@@ -36,6 +46,45 @@ dataforpsignifit_total(2,3,:,1)=[1:10];
 % Plot Results
 plotpsychometric(psignifitsresults,midpoints)
 
+%% Statistical Analysis
+% Perform repeated measures ANOVA 
+
+% Specify the factor levels (conditions)
+factorNames = {'Condition'};
+factorLevels = {'Condition1', 'Condition2', 'Condition3'};% Assuming 1 - rhythm, 2 - interval , 3- irregular
+%factorLevels = [1 2 3]; % Assuming 1 - rhythm, 2 - interval , 3- irregular
+
+% Create a table from the data matrix (each column is a variable)
+dataTable_obj = array2table(midpoints_obj, 'VariableNames', {'Condition1', 'Condition2', 'Condition3'});
+dataTable_subj = array2table(midpoints_subj, 'VariableNames', {'Condition1', 'Condition2', 'Condition3'});
+
+% Fit the repeated measures ANOVA model
+rmModel_obj = fitrm(dataTable_obj, 'Condition1-Condition3 ~ 1', 'WithinDesign', factorLevels);
+rmModel_subj = fitrm(dataTable_subj, 'Condition1-Condition3 ~ 1', 'WithinDesign', factorLevels);
+
+% Conduct repeated measures ANOVA
+ranovaResults_obj = ranova(rmModel_obj);
+ranovaResults_subj = ranova(rmModel_subj);
+
+% Display the ANOVA table
+disp('OBJECTIVE Repeated Measures ANOVA Results:');
+disp(ranovaResults_obj);
+disp('SUBJECTIVE Repeated Measures ANOVA Results:');
+disp(ranovaResults_subj);
+
+% Post-hoc comparisons (if needed) using multcompare function
+% Specify the comparison method (e.g., 'tukey-kramer', 'bonferroni', etc.)
+% Replace 'ComparisonMethod' with your preferred method
+posthocResults_obj = multcompare(rmModel_obj);
+posthocResults_subj = multcompare(rmModel_subj, 'Condition', 'By', 'Condition', 'ComparisonType', 'tukey-kramer');
+
+
+% Display the post-hoc comparisons table
+disp('OBJECTIVE Post-hoc Comparisons:');
+disp(posthocResults_obj);
+
+disp('SUBJECTIVE Post-hoc Comparisons:');
+disp(posthocResults_subj);
 %% Run Psignifit
 function [psignifitsresults,midpoints]=fitpsychcurves(dataforpsignifit)
 % Prepare struct with fitting options
@@ -76,8 +125,6 @@ midpoints.objdiff.rhy=midpoints.rhyobj-midpoints.irrobj;
 midpoints.subjdiff.int=midpoints.intsubj-midpoints.irrsubj;
 midpoints.subjdiff.rhy=midpoints.rhysubj-midpoints.irrsubj;
 end
-
-
 %% Plot Psychometric
 function []=plotpsychometric(psignifitsresults,midpoints)
 %% Plot
@@ -129,3 +176,4 @@ title('Midpoint Difference')
 yline(0,'-','Irregular Midpoint');
 legend('Rhythm','Interval')
 end
+

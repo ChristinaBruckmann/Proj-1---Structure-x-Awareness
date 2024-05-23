@@ -2,8 +2,8 @@
 clear
 clc
 
-cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\Data\Behavioural Preprocessed'
-subjects=[17:22 101:103 105:106];
+cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\Behavioural Preprocessed'
+subjects=[101:103 105: 106 108 113 114 117 118 119];
 
 % Load Data And Merge
 

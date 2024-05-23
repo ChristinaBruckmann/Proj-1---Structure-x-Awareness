@@ -19,7 +19,8 @@ disp('Behavioural Analyses Done.')
 
 % Time-Frequency
 disp('Starting TF Analysis.')
-sxa_TF(subj) % Time-Frequency Analysis (All Freqs, Saving Single Trials for later Behav-EEG LogReg)
+sxa_TF(subj,0) % Time-Frequency Analysis (All Freqs, Saving Single Trials for later Behav-EEG LogReg)
+sxa_TF(subj,1) % Baseline (pre-trial)
 disp('TF Analysis Done.')
 
 % Alpha Amplitude

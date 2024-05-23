@@ -3,7 +3,7 @@
 clear
 clc
 %subj=[17:22 101:103 105:106];
-subj=[101:103 105:108 113 114];
+subj=[101:103 105:108 113 114 117 118 119];
  cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\DeltaRes'
 cluster=1; %(1 occipital, 2 central)
 catchonly=0; %(1-yes)
