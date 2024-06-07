@@ -4,18 +4,30 @@ function []=sxa_TF_alpaamp(subj,plots,catchonly)
 % Input: Subject Number, generate plots (1/0)
 irrtartimes=[3 4 5]; % when irregular targets can appear
 basec=0; %baselinecorrection?
+maskonly=1;
+
+if maskonly % catch only not relevant for mask onset
+    catchonly=0;
+end
+
 % clc
 % clear 
 disp('Starting Alpha Amplitude Analysis')
 
-% Parameters
+% % Parameters
 if catchonly
     triggercodes={1;2;3};
     timerange=[-1000 700];
+elseif maskonly
+    triggercodes={31;32;33};
+    timerange=[-600 700];
 else
     triggercodes={71;72;73}; % Warning Signals per condition
     timerange=[-200 1500];
 end
+
+% Parameters (mask onset alpha)
+
 
 paddingLength=500; % in ms
 alpha_wavFreqs=1:40; % Range taken from Elmira, Assaf uses 1:30 in plos bio
@@ -29,6 +41,8 @@ occelonly=1;
 loadfilename=sprintf('EEG_SxA_Subj%i_Session2_pp.mat',subj);
 if catchonly
     savefilename=sprintf('EEG_SxA_Subj%i_AlphaResults_Catch.mat',subj);
+elseif maskonly
+     savefilename=sprintf('EEG_SxA_Subj%i_AlphaResults_Mask.mat',subj);
 else
     savefilename=sprintf('EEG_SxA_Subj%i_AlphaResults.mat',subj);
 end
@@ -51,8 +65,8 @@ for c=1:size(triggercodes,1) % For conditions
     [segmentedData, isNotArtifact, timeVec]=segmentContEEGdata(triggercodes{c}, timerange+[-paddingLength paddingLength], data, triggers, artifacts, srate);
 
 
-        % Get index for irregular trials without target in time window if not catch trials
-        if c==3 && ~catchonly
+        % Get index for irregular trials without target in time window if not catch trials or mask only
+        if c==3 && ~catchonly && ~maskonly
             cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\Behavioural Preprocessed'
             load(sprintf('SxA_ResultsSubject%i_Session2.mat',subj),'alldataclean')
             idx_notar=ismember(alldataclean{(alldataclean{:,'Condition'}==c),'Irregular Target Time'},irrtartimes);
@@ -66,7 +80,7 @@ for c=1:size(triggercodes,1) % For conditions
         % Remove trials with artifacts
         %artrej=input("Remove artifact trials (1=yes)? ");
         artrej=1;
-        if artrej==1 && c==3 && ~catchonly
+        if artrej==1 && c==3 && ~catchonly && ~maskonly
             segmentedData=segmentedData(:,:,isNotArtifact & idx_notar);
         elseif artrej==1
             segmentedData=segmentedData(:,:,isNotArtifact==1);
@@ -123,10 +137,13 @@ if plots
         if catchonly
             xline(-800,'r--','Warning Signal');
             xline(0,'b--','Predicted Target');
+        elseif maskonly
+            xline(0,'r--','Mask Onset');
         else
             xline(0,'r--','Warning Signal');
             xline(800,'b--','Predicted Target');
         end
+
         colorbar();
         xlabel('Time (ms)', 'FontWeight','bold', 'FontSize', 10);
         ylabel('Frequency (Hz)', 'FontWeight','bold', 'FontSize', 10);
@@ -163,6 +180,8 @@ if plots
     if catchonly
         xline(-800,'r--','Warning Signal');
         xline(0,'b--','Predicted Target');
+    elseif maskonly
+        xline(0,'r--','Mask Onset');
     else
         xline(0,'r--','Warning Signal');
         xline(800,'b--','Predicted Target');

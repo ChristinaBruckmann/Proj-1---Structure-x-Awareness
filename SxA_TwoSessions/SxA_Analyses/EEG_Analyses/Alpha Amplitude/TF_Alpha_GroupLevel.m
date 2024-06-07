@@ -1,4 +1,4 @@
-%% Time Frequency and Alpha Amplitude Group level
+%% Time Frequency Group level
 clear
 clc
 
@@ -54,17 +54,25 @@ for c=1:height(gl_tf_results_means) % For conditions
     end
 end
 
-%% Plot Mean TR of Predictable
+%% Plot Mean TF of Predictable
 average_Tf_pred=squeeze(mean(squeeze(mean(gl_tf_results_means(1:2,:,:,:),4)),1));
-
+if basec
+    if ~catchonly
+        baselinetp=[0 100]; % baseline time points in relation to WS (WS at time point 0)
+    else
+        baselinetp=[-800 -700]; % baseline time points in relation to Target (Target at 0)
+    end
+    average_Tf_pred=baselineCorrectSegmentedData(average_Tf_pred, gl_tf_timeVec(1).alpha_timeVecTotal{1, 1}, baselinetp);
+end
 figure;
 imagesc(gl_tf_timeVec(1).alpha_timeVecTotal{1, 1}, gl_alpha_wavFreqs(1).alpha_wavFreqs, average_Tf_pred'); axis xy; hold all
-xline(0,'r--','Warning Signal');
-xline(800,'b--','Predicted Target');
+xline(800,'Alpha',1,'Color',[0 0 0],'FontWeight','bold','LineStyle','--','LineWidth',1,'FontSize',15,'Label','Predicted Target');
+xline(0,'Alpha',1,'Color',[0 0 0],'FontWeight','bold','LineStyle','--','LineWidth',1,'FontSize',15,'Label','Warning Signal');
 colorbar();
-xlabel('Time (ms)', 'FontWeight','bold', 'FontSize', 10);
-ylabel('Frequency (Hz)', 'FontWeight','bold', 'FontSize', 10);
-
+ylabel('Frequency (Hz)','FontWeight','bold');
+xlabel('Time (ms)','FontWeight','bold');
+fig=gca;
+set(fig,'FontSize',15,'Layer','top','XTick',[0 400 800 1200],'YTick',[10 20 30 40]);
 %% Plot each conditions without alpha
 for c=1:3
 TF_noalpha(c,:,:)=squeeze(mean(gl_tf_results_means(c,:,:,:),4));
@@ -156,45 +164,5 @@ ax.CLim = [-0.5 0.2];
 colorbar();
 xlabel('Time (ms)', 'FontWeight','bold', 'FontSize', 10);
 ylabel('Frequency (Hz)', 'FontWeight','bold', 'FontSize', 10);
-%% Plot Alpha Only
-alpharange=8:12;
-
-% Baseline Correct
-if basec
-    if ~catchonly
-        baselinetp=[0 100]; % baseline time points in relation to WS (WS at time point 0)
-    else
-        baselinetp=[-800 -700]; % baseline time points in relation to Target (Target at 0)
-    end
-    for c=1:height(gl_tf_results_means)
-        datatoplot(c,:,:,:)=baselineCorrectSegmentedData(squeeze(gl_tf_results_means(c,:,:,:)), gl_tf_timeVec(1).alpha_timeVecTotal{1, 1}, baselinetp);
-    end
-else
-    datatoplot=gl_tf_results_means;
-end
-
-figure;
-for c=1:height(gl_tf_results_means) % For conditions
-    % Plot Alpha Only (8-12 hz)
-    plot(gl_tf_timeVec(1).alpha_timeVecTotal{1, 1}, mean(mean(datatoplot(c,:,alpharange,:),4),3), 'LineWidth', 2);
-    rhyleg=sprintf('Rhythm. Average Trials PP: %i',round(mean(alphatrials(:,1),1)));
-    intleg=sprintf('Interval. Average Trials PP: %i',round(mean(alphatrials(:,2),1)));
-    irrleg=sprintf('Irregular. Average Trials PP: %i',round(mean(alphatrials(:,3),1)));
-    legend(rhyleg,intleg,irrleg)
-    title("Alpha Power between WS and Target")
-    hold on;
-end
-
-xline(0,'r--','Warning Signal');
-xline(800,'b--','Predicted Target');
 
 
-% Variance Plot
-figure;
-%colourvecs=[[0.93,0.69,0.13]]
-for c=1:3
-varplot(gl_tf_timeVec(1).alpha_timeVecTotal{1, 1},squeeze(mean(datatoplot(c,:,alpharange,:),4)),'linewidth',2)
-hold on
-end
-xline(0,'r--','Warning Signal');
-xline(800,'b--','Predicted Target');

@@ -4,8 +4,9 @@ function []=sxa_TF(subj,baseline)
 % Input: Subject Number, generate plots (1/0)
 disp('Starting Time Frequency Analysis')
 singletrials=1; %(save single trials?)
+artrej=1; % already remove artifact trials?
 
-% Parameters
+% Parameters (real analysis)
 if baseline % baseline means, that the whole code will extract the TF at the baseline (beginning of trial), note that it doesnt mean that the data itself is already baseline corrected.
     % Pre-Target Baseline
     triggercodes={31;32;33}; % Start of trial
@@ -44,7 +45,6 @@ for c=1:size(triggercodes,1) % For conditions
     sprintf('Proportion of artifact-free trials: %.2f', mean(isNotArtifact))
 
     % Remove trials with artifacts
-    artrej=0;
     if artrej==1
         segmentedData=segmentedData(:,:,isNotArtifact==1); 
     end

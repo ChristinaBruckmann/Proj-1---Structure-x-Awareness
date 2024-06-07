@@ -6,11 +6,12 @@ clc
 
 batches=[2]; % 3 is combined
 subj1=[17:22];
-subj2=[101:103 105:108 113 114 117 118 119];
+subj2=[101:103 105:108 110 112 113 114 117 118 119];
 subj3=[17:22 101:103 105:108 113 114 117 118 119];
 clusters=[1 2]; % (1-occipital, 2- central)
-trialtypes= [1]; % (1-all trials, 2 - catch trials)
+trialtypes= [2]; % (1-all trials, 2 - catch trials)
 plotindividuals=[0]; % plot also individual participants
+varplotting=0; % add error bars to plot?
 %% Dir
 cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\DeltaRes'
 
@@ -121,7 +122,11 @@ for cbatch=1:length(batches)
                     colourvec2=[1.00,0.93,0.75];
                 end
 
-                plot(timeVec,Delta(c,:),"LineWidth",2,'Color',colourvec1)
+                if varplotting
+                    varplot(timeVec,squeeze(PartMean(:,c,:))','Color',colourvec1)
+                else
+                    plot(timeVec,Delta(c,:),"LineWidth",2,'Color',colourvec1)
+                end
                 ylim([0 0.6])
                 hold on
 
@@ -155,7 +160,7 @@ for cbatch=1:length(batches)
                 headline=sprintf('Delta ITPC Batch %i',cbatch);
             end
             title(t,headline)
-            clearvars -except t subj elec subj1 subj2 subj3 clusters catchonly trialtypes cbatch trialt ccluster batches plotindividuals
+            clearvars -except t subj elec subj1 subj2 subj3 clusters catchonly trialtypes cbatch trialt ccluster batches plotindividuals varplotting
         end
     end
 end
@@ -237,7 +242,7 @@ for cbatch=1:length(batches)
                 title('Irregular')
             end
         end
-        title(t,headline)
+        title(t,"Delta ITPC Topography before Target Onset")
         clearvars -except t subj elec subj1 subj2 subj3 clusters catchonly trialtypes cbatch trialt ccluster batches plotindividuals
     end
 end

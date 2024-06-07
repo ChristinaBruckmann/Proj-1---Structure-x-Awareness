@@ -87,6 +87,7 @@ disp('SUBJECTIVE Post-hoc Comparisons:');
 disp(posthocResults_subj);
 %% Run Psignifit
 function [psignifitsresults,midpoints]=fitpsychcurves(dataforpsignifit)
+
 % Prepare struct with fitting options
 fitting_options_obj=struct;
 fitting_options_subj=struct;
@@ -97,6 +98,10 @@ fitting_options_subj.expType = 'YesNo';
 
 fitting_options_obj.sigmoidName = 'logistic';
 fitting_options_subj.sigmoidName = 'logistic';
+
+% % Simple Fit
+fitting_options_obj.fixedPars = [NaN;NaN;0;NaN;0]; % threshold, width, lapse rate, guess rate,eta
+fitting_options_subj.fixedPars = [NaN;NaN;0;NaN;0]; % threshold, width, lapse rate, guess rate,eta
 
 % Fit Curves for each condition - data including outliers
 for conditions=1:3

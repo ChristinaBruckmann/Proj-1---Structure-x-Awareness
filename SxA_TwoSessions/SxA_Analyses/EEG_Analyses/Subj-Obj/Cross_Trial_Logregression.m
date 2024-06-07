@@ -17,7 +17,7 @@ matlab=0;
 
 baselinecorr=0; % Correct for pre-trial power (needs to be extracted with the TF function first)
 subtract=1; % subtract (1) or divide(0) by baseline? (only aplied if baselinecorr=1)
-calczscore=0; % z-score contrasts  and power values?
+calczscore=1; % z-score contrasts  and power values?
 %% Load Data
 % Load TF Data
 for s=subj
@@ -109,16 +109,69 @@ for s=subj
                 % Z-Score
                 if calczscore
                     for c=cond
-                        data_power{c}=zscore(data_power{c},0,'all');
+                        data_power{c}=zscore(data_power{c},0,3); % data power{c} dimensions: time x frequencies x trials (z score across trials)
                         all_behav{1, c}(:,1)=zscore(all_behav{1, c}(:,1),0,'all');
                     end
                 end
 
                 cd  'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\SubjObj'
-                savefilename2=sprintf("RInput_LogReg_S%i",s);
+                savefilename2=sprintf("LogRegInput_S%i",s);
                 save(savefilename2,'all_behav','data_power')
 end
+
+
 %% %% Cross-Trial Regression
+% Assaf's log reg function
+
+% Parameters
+subj=[111];
+%freqrange=[1:40];
+freqrange=[1:31];
+electrodes=[25:30 62:64]; % occipital
+timep=[250 1200]; % (data aligned to warning signal, target at 800), make sure the values you choose are within the time limits you chose for the TF analysis
+cond=[1 2 3]; % which conditions (rhythm, interval, irregular)
+
+loadfilename=sprintf("LogRegInput_S%i",111);
+load(loadfilename);
+
+%for s=subj
+    % For each condition
+    for c=2:3
+        currobj=all_behav{c}(:,2);
+        currsubj=all_behav{c}(:,3);
+        contrasts=all_behav{c}(:,1);
+        % At each frequency
+        for freq= 1:size(data_power{c},1)
+            % At each time point
+            for tp=1:size(data_power{c},2)
+                % Select relevant data
+                currpow=squeeze(data_power{c}(freq,tp,:));
+                xData=double([contrasts currpow]);
+
+                % run logistic regression
+                [bob, ~, ~]=logRegression(xData, currobj, 0.5); % bestfitparams (I think) are intercept, contrast, alpha power
+                [bsu, ~, ~]=logRegression(xData, currsubj, 0);  % bestfitparams (I think) are intercept, contrast, alpha power
+
+                % Save weights and stats
+                tp_bob(tp,:)=bob;
+                tp_bsu(tp,:)=bsu;
+            end
+            % Save weights and stats
+            freq_bob(freq,:,:)=tp_bob;
+            freq_bsu(freq,:,:)=tp_bsu;
+        end
+        % Save weights and stats
+        total_bob(c,:,:,:)=freq_bob; % (condition, frequency, timepoint,variables)
+        total_bsu(c,:,:,:)=freq_bsu;
+    end
+    % Save
+    savefilename=sprintf('EEG_SxA_Subj%i_Results_SubjObj.mat',s);
+    cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\SubjObj'
+    save(savefilename,'total_bob','total_bsu','cond','electrodes','freqrange','timep')
+%end
+
+
+
 % if matlab
 %     % For each condition
 %     for c=cond
@@ -161,20 +214,58 @@ end
 %     % Export to R
 %     disp("Data for R Prepared. Continue Analysis in R now.")
 % end
-% 
-% %% Plot
-% % For each condition
-% subj=[18:22];
+
+%% Plot
+for c=1:3
+figure('Position', [100 100 1200 500]);
+subplotcount=0;
+    % Title
+    if c==1
+        title2=' Rhythm';
+    elseif c==2
+        title2=' Interval';
+    else
+        title2=' Irregular';
+    end
+
+    for weights=[2:3] % once for contrast coefficients, once for power coefficients
+        if weights==2 % Title
+            title1='Contrast Coefficients ';
+            subplotcount=subplotcount+1;
+        else
+            title1='Power Coefficients ';
+            subplotcount=subplotcount+2;
+        end
+
+        % Plot Objective
+        subplot(2,2,subplotcount)
+        imagesc(timep(1):timep(2),2.^[0:1/6:5], squeeze(total_bob(c,:,:,weights))') % (condition, frequency, timepoint,variables)
+        axis xy; colorbar; hold on
+        line([800 800], [0 40], 'Color', [1 1 1], 'LineWidth', 2)
+        title(strcat(title1,title2,' Objective'))
+
+        % Plot Subjective
+        subplot(2,2,subplotcount+1)
+        imagesc(timep(1):timep(2),2.^[0:1/6:5], squeeze(total_bsu(c,:,:,weights))') % Plot Contrast Coefficients
+        axis xy; colorbar; hold on
+        line([800 800], [0 40], 'Color', [1 1 1], 'LineWidth', 2)
+        title(strcat(title1,title2,' Subjective'))
+    end
+end
+
+
+% % Plot
+% %For each condition
+% subj=[111];
 % plot_var=3; %intercept,contrast,power,interaction
-% cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\Data Analysis\SxA_EEG_Analyses_Current\Results\SubjObj'
+% cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\SubjObj'
 % for s=subj
-%     % Load
+%     %Load
 %     loadfilename=sprintf('EEG_SxA_Subj%i_Results_SubjObj.mat',s);
 %     load(loadfilename)
 %     figure;
-%     for c=1:2
-% 
-%         % Title
+%     for c=1:3
+%         %Title
 %         if c==1
 %             obtitle='Objective Rhythm';
 %             sutitle='Subjective Rhythm';
@@ -197,34 +288,34 @@ end
 %     end
 %     sgtitle(sprintf('Alpha Power Weights Subj %i',s))
 % end
+
+%         % Extract P values and average
+%         for freq=1:size(test,1)
+%             clear test10
+%             clear test11
+%             for tp=1:size(test,2)
+%                 test10(tp,:)=squeeze(tempstatsob(freq, tp).p);
+%                 test11(tp,:)=squeeze(tempstatssu(freq, tp).p);
+%             end
+%             p_values_ob(freq,:,:)=test10;
+%             p_values_su(freq,:,:)=test11;
+%         end
 % 
-% %         % Extract P values and average
-% %         for freq=1:size(test,1)
-% %             clear test10
-% %             clear test11
-% %             for tp=1:size(test,2)
-% %                 test10(tp,:)=squeeze(tempstatsob(freq, tp).p);
-% %                 test11(tp,:)=squeeze(tempstatssu(freq, tp).p);
-% %             end
-% %             p_values_ob(freq,:,:)=test10;
-% %             p_values_su(freq,:,:)=test11;
-% %         end
-% %
-% %         p_val_ob=squeeze(mean(p_values_ob,1));
-% %         p_val_su=squeeze(mean(p_values_su,1));
-% %
-% %         % Plot p-values obj
-% %         figure;
-% %         for weight=1:size(p_val_ob,2) % for each weight
-% %             subplot(1,4,weight)
-% %             plot(1:size(p_val_ob,1),p_val_ob(:,weight))
-% %             if weight==1
-% %                 title('P-Value Intercept')
-% %             elseif weight==2
-% %                 title('P-Value Contrast')
-% %             elseif weight==3
-% %                 title('P-Value Alpha Power')
-% %             elseif weight==4
-% %                 title('P-Value Interaction Contrast-Alpha')
-% %             end
-% %         end
+%         p_val_ob=squeeze(mean(p_values_ob,1));
+%         p_val_su=squeeze(mean(p_values_su,1));
+% 
+%         % Plot p-values obj
+%         figure;
+%         for weight=1:size(p_val_ob,2) % for each weight
+%             subplot(1,4,weight)
+%             plot(1:size(p_val_ob,1),p_val_ob(:,weight))
+%             if weight==1
+%                 title('P-Value Intercept')
+%             elseif weight==2
+%                 title('P-Value Contrast')
+%             elseif weight==3
+%                 title('P-Value Alpha Power')
+%             elseif weight==4
+%                 title('P-Value Interaction Contrast-Alpha')
+%             end
+%         end

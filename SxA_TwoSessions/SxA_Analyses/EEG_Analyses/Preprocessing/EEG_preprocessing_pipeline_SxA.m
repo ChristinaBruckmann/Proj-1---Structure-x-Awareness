@@ -237,6 +237,7 @@ disp(['length of ICA train data is ' num2str(size(ica_train_set,1)/SDATA.info.sa
 clear show_data
 
 %% 7.2: run ICA
+
     
 tic
 [weights,sphere,~,~,~,~,~]  = runica(ica_train_set','pca',size(ica_train_set,2)-1);

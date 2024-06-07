@@ -30,7 +30,6 @@ sxa_TF_alpaamp(subj,1,1) % Alpha Amplitude Catch Trials Only
 disp('Alpha Analysis Done.')
 
 % Delta ITPC
-disp('Starting Delta Analysis.')
 SxA_DeltaPhaseExtraction(subj)
 disp('Starting Delta Sementation.')
 SxA_DeltaSegmentation(subj,1,0) % Occipital Cluster, All Trials

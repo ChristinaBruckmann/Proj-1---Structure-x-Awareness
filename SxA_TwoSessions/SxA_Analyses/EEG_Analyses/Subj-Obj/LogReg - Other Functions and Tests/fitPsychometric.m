@@ -20,7 +20,7 @@ function [bestFitParams, resFitSorted]=fitPsychometric(xVals, accData)
 nStartingPoints=5; % the higher the number the longer it runs, but less chances for local minima
 stabilityRangeFitting=3; % defines across how many fits with lowest error the param estimates should be averaged, for stability against noise
 
-objective_subjective=2; %1=objective, 2=subjective
+objective_subjective=1; %1=objective, 2=subjective
 
 
 % define boundaries for each model param [lower upper]
