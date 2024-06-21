@@ -3,7 +3,7 @@ function []=sxa_TF(subj,baseline)
 %% TF Analysis
 % Input: Subject Number, generate plots (1/0)
 disp('Starting Time Frequency Analysis')
-singletrials=1; %(save single trials?)
+singletrials=0; %(save single trials?)
 artrej=1; % already remove artifact trials?
 
 % Parameters (real analysis)
@@ -24,10 +24,19 @@ TF_wavFreqs=2.^[0:1/6:5]; % Log Range
 % Load Data
 cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Preprocessed'
 loadfilename=sprintf('EEG_SxA_Subj%i_Session2_pp.mat',subj);
-if baseline
-    savefilename=sprintf('EEG_SxA_Subj%i_TF_SingleTrials_BL.mat',subj);
+
+if singletrials
+    if baseline
+        savefilename=sprintf('EEG_SxA_Subj%i_TF_SingleTrials_BL.mat',subj);
+    else
+        savefilename=sprintf('EEG_SxA_Subj%i_TF_SingleTrials.mat',subj);
+    end
 else
-    savefilename=sprintf('EEG_SxA_Subj%i_TF_SingleTrials.mat',subj);
+    if baseline
+        savefilename=sprintf('EEG_SxA_Subj%i_TF_Results_BL.mat',subj);
+    else
+        savefilename=sprintf('EEG_SxA_Subj%i_TF_Results.mat',subj);
+    end
 end
 load(loadfilename)
 

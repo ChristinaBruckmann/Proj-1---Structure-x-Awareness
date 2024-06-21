@@ -2,11 +2,12 @@
 % SxA Group Level Alpha Analysis
 % Plots also variance between subjects
 % "Raw" alpha plots as well as differences between conditions
+% Requires data to already be free of artifacts.
 
 clear
 clc
 
-subj=[101:103 105 106:108 110 111 112 113 114 117 118 119];
+subj=[101:103 105:108 110:114 117:119];
 alpharange=8:12;
 basec=0;
 catchonly=0;
@@ -17,7 +18,7 @@ for s=1:length(subj)
     if catchonly
         loadfilename=sprintf('EEG_SxA_Subj%i_AlphaResults_Catch.mat',subj(s));
     else
-        loadfilename=sprintf('EEG_SxA_Subj%i_AlphaResults.mat',subj(s));
+        loadfilename=sprintf('EEG_SxA_Subj%i_AlphaResults_clean.mat',subj(s));
     end
     gl_tf_timeVec(s)=load(loadfilename,'alpha_timeVecTotal');
     gl_alpha_wavFreqs(s)=load(loadfilename,'alpha_wavFreqs');
@@ -143,7 +144,7 @@ title('Alpha Power between WS and Target');
 xlim(axes1,[-200 1500]);
 hold(axes1,'off');
 % Set the remaining axes properties
-set(axes1,'FontSize',15,'XTick',[0 400 800 1200 1600],'YTick',[2.5 3 3.5],'YTickLabel',{'2.5','3','3.5'});
+set(axes1,'FontSize',15,'XTick',[0 400 800 1200 1600]);
 % Create legend
 legend1 = legend(['Rhythm', 'Interval',"Irregular","",""]);
 set(legend1,'Position',[0.660288949743352 0.582990712020913 0.158190580302694 0.132720591180465]);

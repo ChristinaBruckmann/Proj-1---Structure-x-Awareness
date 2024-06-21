@@ -129,8 +129,8 @@ SDATA.metadata.analysisStageDone=3;
 
 
 %% 4. reference
-reference_channels=[69,70]; %linked mastoids
-%reference_channels=[71]; %nose
+%reference_channels=[69,70]; %linked mastoids
+reference_channels=[71]; %nose
 clc
 
 ref_chans = reference_channels(~ismember(reference_channels,SDATA.metadata.bad_electrodes));
