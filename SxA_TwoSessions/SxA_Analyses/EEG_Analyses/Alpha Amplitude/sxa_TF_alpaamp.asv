@@ -2,9 +2,6 @@ function []=sxa_TF_alpaamp(subj,plots,catchonly)
 %% TF Analysis - Alpha Amplitude
 % Input: Subject Number, generate plots (1/0), analyze only catch trials (1/0)
 % For single trial analysis use the sxa_TF script!
-
-disp('Starting Alpha Amplitude Analysis')
-
 % Output: TF Data 
 irrtartimes=[3 4 5]; % when irregular targets can appear (1 and 2 before 800ms, 3 is 800ms, 4 and 5 after 800ms)
 basec=0; %baselinecorrection? only relevant for plotting, does not change data files saved
@@ -18,9 +15,6 @@ block_begin=0; % only the beginning 5 seconds of each block?
 % Convert to power?
 power=0; % power==1, amplitude==0
 
-% Electrodes?
-occelonly=1; % only save occipital electrodes (used as default to reduce file size)
-
 % Reject artifact trials before saving? (automaticallt disabled for block_begin to identify the first trial of a block
 % For single trial analysis use the sxa_TF script!
 artrej=1; 
@@ -32,6 +26,10 @@ end
 if maskonly && firstinterval || maskonly && block_begin || firstinterval && block_begin
     error('Incompatible time-windows to analyze. Set only one of them to 1.')
 end
+
+% clc
+% clear 
+disp('Starting Alpha Amplitude Analysis')
 
 % % Parameters
 if catchonly
@@ -58,7 +56,9 @@ alpharange=8:12; % only relevant for plotting. The whole TF data gets saved.
 
 % Load Data
 cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Preprocessed'
-
+% subj=input("Subject Number? ");
+%occelonly=input("Display occipital electrodes only (1-yes, 0-all)? ");
+occelonly=1;
 loadfilename=sprintf('EEG_SxA_Subj%i_Session2_pp.mat',subj);
 if catchonly
     savefilename=sprintf('EEG_SxA_Subj%i_AlphaResults_Catch.mat',subj);
@@ -93,7 +93,7 @@ for c=1:size(triggercodes,1) % For conditions
     [segmentedData, isNotArtifact, timeVec]=segmentContEEGdata(triggercodes{c}, timerange+[-paddingLength paddingLength], data, triggers, artifacts, srate);
 
 
-        % Get index for irregular trials without target in time window if analyzing the WS-target window
+        % Get index for irregular trials without target in time window if not catch trials or mask only
         if c==3 && ~catchonly && ~maskonly && ~block_begin
             cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\Behavioural Preprocessed'
             load(sprintf('SxA_ResultsSubject%i_Session2.mat',subj),'alldataclean')
@@ -106,13 +106,14 @@ for c=1:size(triggercodes,1) % For conditions
         sprintf('Proportion of artifact-free trials: %.2f', mean(isNotArtifact))
 
         % Remove trials with artifacts
+        %artrej=input("Remove artifact trials (1=yes)? ");
         if artrej==1 && c==3 && ~catchonly && ~maskonly && ~block_begin
             segmentedData=segmentedData(:,:,isNotArtifact & idx_notar);
         elseif artrej==1
             segmentedData=segmentedData(:,:,isNotArtifact==1);
         end
 
-        % If Time window is Block-Begin, search for only the first trial of each block
+        % If Block-Begin, search for only the first trial beginning of each block
         if block_begin
             if c==1 || c==2 % block_length of 52, three blocks total
                 block_begin_idx=[1 53 105];
@@ -125,15 +126,15 @@ for c=1:size(triggercodes,1) % For conditions
             end
 
 
-            % Select only Block_Begin Trials without Artifacts
-            clean_firsttrials=isNotArtifact==1&block_vector==1;
-            if sum(clean_firsttrials)==0
-                disp('No artifact-free block beginnings')
-            else
-                fprintf('%i clean block beginnings\n',sum(clean_firsttrials))
-            end
-            block_begin_notartifact{c}=isNotArtifact(block_begin_idx);
-            segmentedData=segmentedData(:,:,block_vector==1);
+           % Select only Block_Begin Trials without Artifacts
+           clean_firsttrials=isNotArtifact==1&block_vector==1;
+           if sum(clean_firsttrials)==0
+               disp('No artifact-free block beginnings')
+           else
+               fprintf('%i clean block beginnings\n',sum(clean_firsttrials))
+           end
+           block_begin_notartifact{c}=isNotArtifact(block_begin_idx);
+           segmentedData=segmentedData(:,:,block_vector==1);
         end
 
     % TF Analysis
@@ -159,7 +160,6 @@ for c=1:size(triggercodes,1) % For conditions
     clear condResults segmentedData timeVec
 end
 cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\AlphaRes'
-
 if ~block_begin
 save(savefilename, 'alpha_Results', 'alpha_timeVecTotal', 'alpha_wavFreqs', 'alpha_tfElectrodes','alpha_ntrials',"power",'irrtartimes');
 else
@@ -168,7 +168,8 @@ end
 disp('Alpha Amplitude Results Saved')
 %% Plot TF
 if plots
-
+    % Baseline Correct?
+    % basec=input("Baseline Correction (1-yes)? ");
     if ~catchonly
         baselinetp=[0 100]; % baseline time points in relation to WS (WS at time point 0)
     else
@@ -179,6 +180,10 @@ if plots
     for c=1:size(triggercodes,1) % For conditions
 
         if basec
+            %     [~,startbaseidx]=(min(abs(timeVec-baselinetp(1))));
+            %     [~,endbaseidx]=(min(abs(timeVec-baselinetp(2))));
+            %     baseline=mean(tfResults(startbaseidx:endbaseidx,:,:), 1);
+            %     datatoplot=tfResults-baseline;
             datatoplot=baselineCorrectSegmentedData(alpha_Results{c}, alpha_timeVecTotal{c}, baselinetp);
         else
             datatoplot=alpha_Results{c};
@@ -215,6 +220,10 @@ if plots
     figure;
     for c=1:size(triggercodes,1) % For conditions
         if basec
+            %     [~,startbaseidx]=(min(abs(timeVec-baselinetp(1))));
+            %     [~,endbaseidx]=(min(abs(timeVec-baselinetp(2))));
+            %     baseline=mean(tfResults(startbaseidx:endbaseidx,:,:), 1);
+            %     datatoplot=tfResults-baseline;
             datatoplot=baselineCorrectSegmentedData(alpha_Results{c}, alpha_timeVecTotal{c}, baselinetp);
         else
             datatoplot=alpha_Results{c};
