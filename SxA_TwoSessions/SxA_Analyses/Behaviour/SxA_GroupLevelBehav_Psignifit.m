@@ -1,8 +1,9 @@
-% Group Average Behavioural
+%% Group Average Behavioural
 clear
 clc
 
-subjects=[101:103 105:106 108 110 111 113 114 117 118 119];
+subjects=[101:103 105:106 108 110 111 112 113 114 116 117 118 119 121:124 126 127 129 130 131 132];
+%subjects=[15 17:22];
 cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\Behavioural Preprocessed'
 
 % Load Data And Merge
@@ -46,7 +47,11 @@ dataforpsignifit_total(2,3,:,1)=[1:10];
 % Plot Results
 plotpsychometric(psignifitsresults,midpoints)
 
-%% Statistical Analysis
+%Save
+% csvwrite('midpoints_obj.csv',midpoints_obj)
+% csvwrite('midpoints_subj.csv',midpoints_subj)
+
+ %% Statistical Analysis
 % Perform repeated measures ANOVA 
 
 % Specify the factor levels (conditions)
@@ -72,19 +77,18 @@ disp(ranovaResults_obj);
 disp('SUBJECTIVE Repeated Measures ANOVA Results:');
 disp(ranovaResults_subj);
 
-% Post-hoc comparisons (if needed) using multcompare function
-% Specify the comparison method (e.g., 'tukey-kramer', 'bonferroni', etc.)
-% Replace 'ComparisonMethod' with your preferred method
-posthocResults_obj = multcompare(rmModel_obj);
-posthocResults_subj = multcompare(rmModel_subj, 'Condition', 'By', 'Condition', 'ComparisonType', 'tukey-kramer');
 
+%% T-Tests for Planned Contrasts (one tailed)
+% Rhythm better than irregular?
+[h_obj(1),p_obj(1),~,stats_obj(1,:)] = ttest(midpoints_obj(:,1),midpoints_obj(:,3),"Tail","left");
+[h_subj(1),p_subj(1),~,stats_subj(1,:)] = ttest(midpoints_subj(:,1),midpoints_subj(:,3),"Tail","left");
+% Interval better than irregular?
+[h_obj(2),p_obj(2),~,stats_obj(2,:)] = ttest(midpoints_obj(:,2),midpoints_obj(:,3),"Tail","left");
+[h_subj(2),p_subj(2),~,stats_subj(2,:)] = ttest(midpoints_subj(:,2),midpoints_subj(:,3),"Tail","left");
+% Difference between rhythm and interval?
+[h_obj(3),p_obj(3),~,stats_obj(3,:)] = ttest(midpoints_obj(:,1),midpoints_obj(:,2),"Tail","left");
+[h_subj(3),p_subj(3),~,stats_subj(3,:)] = ttest(midpoints_subj(:,1),midpoints_subj(:,2),"Tail","left");
 
-% Display the post-hoc comparisons table
-disp('OBJECTIVE Post-hoc Comparisons:');
-disp(posthocResults_obj);
-
-disp('SUBJECTIVE Post-hoc Comparisons:');
-disp(posthocResults_subj);
 %% Run Psignifit
 function [psignifitsresults,midpoints]=fitpsychcurves(dataforpsignifit)
 
@@ -100,8 +104,8 @@ fitting_options_obj.sigmoidName = 'logistic';
 fitting_options_subj.sigmoidName = 'logistic';
 
 % % Simple Fit
-fitting_options_obj.fixedPars = [NaN;NaN;0;NaN;0]; % threshold, width, lapse rate, guess rate,eta
-fitting_options_subj.fixedPars = [NaN;NaN;0;NaN;0]; % threshold, width, lapse rate, guess rate,eta
+% fitting_options_obj.fixedPars = [NaN;NaN;0;NaN;0]; % threshold, width, lapse rate, guess rate,eta
+% fitting_options_subj.fixedPars = [NaN;NaN;0;NaN;0]; % threshold, width, lapse rate, guess rate,eta
 
 % Fit Curves for each condition - data including outliers
 for conditions=1:3
@@ -136,19 +140,19 @@ function []=plotpsychometric(psignifitsresults,midpoints)
 % Plot Curves
 plotOptions1.lineColor = [0.00,0.45,0.74];
 plotOptions1.dataColor = [0.00,0.45,0.74];
-plotOptions1.CIthresh = false;  
+plotOptions1.CIthresh = true;  
 plotOptions1.dataSize=2;
 plotOptions1.lineWidth = 2;
 plotOptions2.lineColor = [0.85,0.33,0.10];
 plotOptions2.dataColor = [0.85,0.33,0.10];
 plotOptions2.lineWidth = 2;
 plotOptions2.dataSize=2;
-plotOptions2.CIthresh = false;  
+plotOptions2.CIthresh = true;  
 plotOptions3.lineColor = [0.93,0.69,0.13];
 plotOptions3.dataColor = [0.93,0.69,0.13];
 plotOptions3.dataSize=2;
 plotOptions3.lineWidth = 2;
-plotOptions3.CIthresh = false;  
+plotOptions3.CIthresh = true;  
 
 figure;
 subplot(2,1,1); [hline]=plotPsych(psignifitsresults{1}.obj,plotOptions1);

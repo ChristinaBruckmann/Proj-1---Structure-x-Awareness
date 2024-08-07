@@ -3,7 +3,9 @@
 
 clear; close all; clc
 
-raw_data_path = 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\Raw\EEG Raw'; % The file selection dialog will open on this folder
+%raw_data_path = 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\Raw\EEG Raw'; % The file selection dialog will open on this folder
+%raw_data_path = 'Z:\el-Christina\SxA\SxA_Data\Raw\EEG Raw\Second Batch (Post-TRF)';
+raw_data_path = 'D:\';
 
 % necessary functions:
 % from fieldtrip: read_biosemi_bdf, read_24bit (plus all the read_24bit mex files), ReadBioSemiTriggerChannel
@@ -444,7 +446,8 @@ SDATA.metadata.analysisStageDone=9;
 
 %% 10. save SData
 clc
-cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Preprocessed'
+%cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Preprocessed'
+cd 'Z:\el-Christina\SxA\SxA_Data'
 fileNameSave=[SDATA.info.fileNames{1}(1:end-4) '_pp.mat'];
 disp('Saving')
 save(fileNameSave, 'SDATA','-v7.3')

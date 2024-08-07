@@ -4,15 +4,15 @@
 
 clear
 clc
-subj=[15 17:22];
-
+%subj=[101:103 105:108 110:114 116:119 121:122 124 126 127 129 131 132];
+subj=[124 126 127 129 131 132];
 % Single Subject
 for s=1:length(subj)
     disp('Starting CNV Analysis')
     % Load data
-    cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\Two Session Version - Code and Data\Data Analysis\EEG\EEG Data'
+    cd 'Z:\el-Christina\SxA\SxA_Data\EEG Preprocessed'
     loadfilename=sprintf('EEG_SxA_Subj%i_Session2_pp.mat',subj(s));
-    savefilename=sprintf('EEG_SxA_Subj%i_Results_New.mat',subj(s));
+    savefilename=sprintf('EEG_SxA_Subj%i_CNV.mat',subj(s));
     load(loadfilename)
 
     % Parameters
@@ -33,13 +33,13 @@ for s=1:length(subj)
         [CNV_SingleTrials, isNotArtifact, CNV_timeVec]=segmentContEEGdata(triggercodes{c}, timerange, data, triggers, artifacts, srate);
 
         % Select Specific Trials Only
-        onlyvis=1;
+        onlyvis=0;
         vislevels=[6:10]; % Which trials are classified as visible?
         if onlyvis
             load(sprintf('SxA_ResultsSubject%i_Session2.mat',subj(s)),'alldataclean')
             idx_vis=ismember(alldataclean{(alldataclean{:,'Condition'}==c),'Contrast Level'},vislevels);
         else
-            idx_vis=ones(size(CNV_SingleTrials,3));
+            idx_vis=ones(size(CNV_SingleTrials,3),1);
         end
 
         % Remove trials with artifacts
@@ -61,8 +61,8 @@ for s=1:length(subj)
 
         CNV_Mean(c,:)=mean(CNV_perElec,2);
 
-        cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\Two Session Version - Code and Data\Data Analysis\SxA_EEG_Analyses_Current\Results'
-        save(savefilename,'CNV_Mean','CNV_electodes','CNV_timeVec',"-append")
+        cd 'Z:\el-Christina\SxA\SxA_Results\CNV Results'
+        save(savefilename,'CNV_Mean','CNV_electodes','CNV_timeVec')
 
         % disp('CNV results saved')
         % Plot
@@ -87,10 +87,12 @@ end
 
 %% Group Level 
 
+lpf_cutoff=20;
+
 % Load Data
 for s=1:length(subj)
-    cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\Two Session Version - Code and Data\Data Analysis\SxA_EEG_Analyses_Current\Results'
-    loadfilename=sprintf('EEG_SxA_Subj%i_Results_New.mat',subj(s));
+    cd 'Z:\el-Christina\SxA\SxA_Results\CNV Results'
+    loadfilename=sprintf('EEG_SxA_Subj%i_CNV.mat',subj(s));
     load(loadfilename,'CNV_Mean')
     for c=1:3 % conditions
     CNV_GL(s,c,:)=CNV_Mean(c,:);
@@ -101,12 +103,12 @@ end
 figure;
 for c=1:3 % conditions
     CNV_GL_Mean(c,:)=mean(squeeze(CNV_GL(:,c,:)),1);
-
+    CNV_GL_Mean(c,:)=LPF( CNV_GL_Mean(c,:), 1024, lpf_cutoff);
     % Plot
     subplot(1,3,c); plot(CNV_timeVec,CNV_GL_Mean(c,:))
     title(sprintf('Average Activity from ROI channels.'))
     xline(0,'r--','Warning Signal');
-    xline(800,'b--','Predicted Target');
+    xline(900,'b--','Predicted Target');
 end
 
 % %% Jackknifing

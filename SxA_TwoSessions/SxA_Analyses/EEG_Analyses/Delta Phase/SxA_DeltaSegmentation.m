@@ -30,7 +30,7 @@ for s=1:length(subj)
         load(loadfilename1,'delta_phase_whole_cen')
         delta_data=delta_phase_whole_cen;
     end
-    cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Preprocessed'
+    cd 'Z:\el-Christina\SxA\SxA_Data\EEG Preprocessed'
     load(loadfilename2,'SDATA')
 
     artifacts=SDATA.metadata.artifacts;
@@ -100,7 +100,7 @@ for s=1:length(subj)
     end
 
     % Save
-    cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\DeltaRes'
+    cd 'Z:\el-Christina\SxA\SxA_Results\Delta Results'
     if catchonly
         if cluster==1
             savefilename=sprintf('OccipitalCatch_Subj%i',subj(s));

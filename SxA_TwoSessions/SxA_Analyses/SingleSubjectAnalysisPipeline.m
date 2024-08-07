@@ -6,13 +6,19 @@ clc
 subj=input("Subject Number: ");
 
 %% Behavioural Analysis
+
+cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Analyses\Behaviour'
+
 % Merge
 SxA_SingleSubjBehav_MergeSessions(subj) % Merge behavioural data from session 1 and 2
 
 % Analyse
+cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Analyses\Behaviour'
 disp('Starting Behavioural Analyses.')
 SxA_SingleSubjBehav_Analysis(subj,1,0) % Pre-Processs and Analyse session 1
+cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Analyses\Behaviour'
 SxA_SingleSubjBehav_Analysis(subj,2,0) % Session 2
+cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Analyses\Behaviour'
 SxA_SingleSubjBehav_Analysis(subj,3,1) % Both sessions together
 disp('Behavioural Analyses Done.')
 %% EEG Analyses

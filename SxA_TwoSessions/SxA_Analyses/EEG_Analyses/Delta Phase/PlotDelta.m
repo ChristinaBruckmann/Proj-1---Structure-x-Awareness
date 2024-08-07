@@ -4,16 +4,19 @@
 clear
 clc
 
-batches=[2]; % 3 is combined
+batches=[1]; % 3 is combined
 subj1=[17:22];
-subj2=[101:103 105:108 110 112 113 114 117 118 119];
-subj3=[17:22 101:103 105:108 113 114 117 118 119];
+subj2=[101:103 105:108 110 112:114 116:119 121 122 124 126 127];
+subj3=[17:22 101:103 105:108 110 112:114 116:119 121 122 124 126 127];
 clusters=[1 2]; % (1-occipital, 2- central)
-trialtypes= [2]; % (1-all trials, 2 - catch trials)
+trialtypes= [1]; % (1-all trials, 2 - catch trials)
 plotindividuals=[0]; % plot also individual participants
-varplotting=0; % add error bars to plot?
+varplotting=1; % add error bars to plot?
+
+% Time Window for Statistics
+stats_tw=[700 800]; %from WS
 %% Dir
-cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\DeltaRes'
+cd ' Z:\el-Christina\SxA\SxA_Results\Delta Results'
 
 %% Delta Average
 for cbatch=1:length(batches)
@@ -106,8 +109,18 @@ for cbatch=1:length(batches)
                 end
             end
 
+            %% Statistics in ROI Time Window
+            delta_tw=PartMean(:,:,timeVec>=stats_tw(1)&timeVec<=stats_tw(2)); % select only time window
+            delta_tw=mean(delta_tw,3); % average across time points
 
-            % Plot
+            % Rhythm higher than irregular?
+            [h_delta(1),p_delta(1),~,stats_delta(1,:)] = ttest(delta_tw(:,1),delta_tw(:,3),"Tail","right");
+            % Interval higher than irregular?
+            [h_delta(2),p_delta(2),~,stats_delta(2,:)] = ttest(delta_tw(:,2),delta_tw(:,3),"Tail","right");
+            % Difference between rhythm and interval?
+            [h_delta(3),p_delta(3),~,stats_delta(3,:)] = ttest(delta_tw(:,1),delta_tw(:,2));
+
+            %% Plot
             nexttile
             for c=1:3
 
@@ -123,7 +136,7 @@ for cbatch=1:length(batches)
                 end
 
                 if varplotting
-                    varplot(timeVec,squeeze(PartMean(:,c,:))','Color',colourvec1)
+                    varplot(timeVec,squeeze(PartMean(:,c,:))',"LineWidth",2,'Color',colourvec1)
                 else
                     plot(timeVec,Delta(c,:),"LineWidth",2,'Color',colourvec1)
                 end
@@ -160,7 +173,7 @@ for cbatch=1:length(batches)
                 headline=sprintf('Delta ITPC Batch %i',cbatch);
             end
             title(t,headline)
-            clearvars -except t subj elec subj1 subj2 subj3 clusters catchonly trialtypes cbatch trialt ccluster batches plotindividuals varplotting
+            clearvars -except t subj elec subj1 subj2 subj3 clusters catchonly trialtypes cbatch trialt ccluster batches plotindividuals varplotting stats_tw
         end
     end
 end
@@ -227,7 +240,6 @@ for cbatch=1:length(batches)
 
 
         % Plot
-        figure;
         for c=1:3
             % topography
             subplot(1,3,c)

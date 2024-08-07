@@ -7,10 +7,14 @@
 clear
 clc
 
-subj=[101:103 105:108 110:114 117:119];
+subj=[17:22];
+%subj=[101:103 105:106 108 110:114 116:119 121 122 124 126 127 129 131 132];
 alpharange=8:12;
-basec=0;
+basec=1;
 catchonly=0;
+
+% Time Window for Statistics
+stats_tw=[700 800]; %from WS
 
 % Load Data
 for s=1:length(subj)
@@ -103,6 +107,19 @@ else
     title("Difference in Alpha Suppression - Uncorrected")
 end
 
+%% Statistics in ROI Time Window
+timevec=gl_tf_timeVec(1).alpha_timeVecTotal{1, 1};
+alpha_tw=alpha_results_avg(:,:,timevec>=stats_tw(1)&timevec<=stats_tw(2)); % select only time window
+alpha_tw=mean(alpha_tw,3); % average across time points
+
+
+% Rhythm better than irregular?
+[h_alpha(1),p_alpha(1),~,stats_alpha(1,:)] = ttest(alpha_tw(:,1),alpha_tw(:,3));
+% Interval better than irregular?
+[h_alpha(2),p_alpha(2),~,stats_alpha(2,:)] = ttest(alpha_tw(:,2),alpha_tw(:,3));
+% Difference between rhythm and interval?
+[h_alpha(3),p_alpha(3),~,stats_alpha(3,:)] = ttest(alpha_tw(:,1),alpha_tw(:,2));
+
 
 %% Figure Functions
 function createfigure_alpha_novar(X1, YMatrix1)
@@ -141,7 +158,7 @@ xline(800,'Parent',axes1,'Alpha',1,'LineStyle','--','LabelOrientation','horizont
 % Create title
 title('Alpha Power between WS and Target');
 
-xlim(axes1,[-200 1500]);
+xlim(axes1,[-400 1500]);
 hold(axes1,'off');
 % Set the remaining axes properties
 set(axes1,'FontSize',15,'XTick',[0 400 800 1200 1600]);

@@ -2,11 +2,14 @@
 
 clear
 clc
-%subj=[17:22 101:103 105:106];
-subj=[101:103 105:108 113 114 117 118 119];
- cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\DeltaRes'
-cluster=1; %(1 occipital, 2 central)
+subj=[17:22];
+%subj=[101:103 105:108 110 112:114 116:119 121 122 124 126 127];
+cd 'Z:\el-Christina\SxA\SxA_Results\Delta Results'
+cluster=2; %(1 occipital, 2 central)
 catchonly=0; %(1-yes)
+
+% Time Window for Statistics
+stats_tw=[700 800]; %from WS
 
 if cluster==1
     elec=[25:30 62:64]; % occipital electrodes
@@ -54,12 +57,10 @@ end
 %Average
 timeVec=squeeze(Delta_TimeVec(1,1,:)); % All TV are identical
 nTrials=sum(Delta_Ntrials,1); % nTrials for chance ITPC calculation
-for c=1:3
-    SubjMean=squeeze(mean(Delta_SingleTrials(:,c,:,elec),1));
-    Delta(c,:)=squeeze(mean(SubjMean,2)); % mean across subjects and electrodes
-end
+SubjMean=squeeze(mean(Delta_SingleTrials(:,:,:,elec),4)); % average across electrodes
+Delta=squeeze(mean(SubjMean,1)); % mean across subjects and electrodes
 
-% Plot
+%% Plot
 figure;
 for c=1:3
     plot(timeVec,Delta(c,:),"LineWidth",2)
@@ -82,8 +83,19 @@ else
 end
 xline(0)
 
+%% Statistics in ROI Time Window
+delta_tw=SubjMean(:,:,timeVec>=stats_tw(1)&timeVec<=stats_tw(2)); % select only time window
+delta_tw=mean(delta_tw,3); % average across time points
+
+% Rhythm higher than irregular?
+[h_delta(1),p_delta(1),~,stats_delta(1,:)] = ttest(delta_tw(:,1),delta_tw(:,3),"Tail","right");
+% Interval higher than irregular?
+[h_delta(2),p_delta(2),~,stats_delta(2,:)] = ttest(delta_tw(:,2),delta_tw(:,3),"Tail","right");
+% Difference between rhythm and interval?
+[h_delta(3),p_delta(3),~,stats_delta(3,:)] = ttest(delta_tw(:,1),delta_tw(:,2));
+
 % Save
- cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\DeltaRes'
+cd 'Z:\el-Christina\SxA\SxA_Results\Delta Results'
 if cluster==1 && catchonly
 save("DeltaGroupLevel_Occ_Catch",'Delta','subj','timeVec','nTrials')
 elseif cluster==1 && ~catchonly

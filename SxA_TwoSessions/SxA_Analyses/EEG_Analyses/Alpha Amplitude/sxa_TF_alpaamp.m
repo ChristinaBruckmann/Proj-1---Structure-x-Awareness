@@ -7,13 +7,17 @@ disp('Starting Alpha Amplitude Analysis')
 
 % Output: TF Data 
 irrtartimes=[3 4 5]; % when irregular targets can appear (1 and 2 before 800ms, 3 is 800ms, 4 and 5 after 800ms)
+excludeshortcue=0; %exclude cues that are too close to the WS?
+mincue=0.4; % exclude all cues that are equal or closer than this to the WS
 basec=0; %baselinecorrection? only relevant for plotting, does not change data files saved
+normmethod=1; % which normalization of morlet? 1 or 2
 
 % Which time points?
 % If all=0, time around warning signal and target gets analyzed
 maskonly=0; % alpha power around mask onsest only?
 firstinterval=0; % compare alpha power of first interval to second interval
 block_begin=0; % only the beginning 5 seconds of each block?
+wholeRhythmTrial=0; % analyze the whole trial duration for rhythm trials (other conditions not possible due to jitter)
 
 % Convert to power?
 power=0; % power==1, amplitude==0
@@ -25,11 +29,11 @@ occelonly=1; % only save occipital electrodes (used as default to reduce file si
 % For single trial analysis use the sxa_TF script!
 artrej=1; 
 
-if maskonly || firstinterval || block_begin% catch only not relevant for mask onset
+if maskonly || firstinterval || block_begin || wholeRhythmTrial % catch only not relevant for mask onset
     catchonly=0;
 end
 
-if maskonly && firstinterval || maskonly && block_begin || firstinterval && block_begin
+if (maskonly + firstinterval + block_begin + wholeRhythmTrial) >1
     error('Incompatible time-windows to analyze. Set only one of them to 1.')
 end
 
@@ -46,18 +50,28 @@ elseif firstinterval
 elseif block_begin
     triggercodes={31;32;33}; % no code for start of block, but this takes all trials beginnings, later selects the first trial of each block
     timerange=[-4000 200]; %back five seconds from the first trial of each block
+elseif wholeRhythmTrial
+    triggercodes={41}; % first rhythm cue. cannot take trial begining because of jitter between trial onset and first cue
+    timerange=[-100 3800]; %whole trial (100ms before first cue. after cue: (100ms cue + 800int)x4 (three cues plus WS) + 16ms target + 100 ms post target
 else
     triggercodes={71;72;73}; % Warning Signals per condition
-    timerange=[-200 1500];
+    timerange=[-400 1500];
 end
 
 % Parameters
 paddingLength=500; % in ms
-alpha_wavFreqs=1:40; % Range taken from Elmira, Assaf uses 1:30 in plos bio. For log-spacing see TF script
-alpharange=8:12; % only relevant for plotting. The whole TF data gets saved.
+if wholeRhythmTrial % for time purposes, just analyze alpha range
+    alpha_wavFreqs=8:12;
+    alpharange=1:length(alpha_wavFreqs);
+else
+    alpha_wavFreqs=1:40; % Range taken from Elmira, Assaf uses 1:30 in plos bio. For log-spacing see TF script
+    alpharange=8:12; % only relevant for plotting. The whole TF data gets saved.
+end
+
 
 % Load Data
-cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Preprocessed'
+%cd 'Z:\el-Christina\SxA\SxA_Data\EEG Preprocessed'
+cd 'D:\'
 
 loadfilename=sprintf('EEG_SxA_Subj%i_Session2_pp.mat',subj);
 if catchonly
@@ -69,6 +83,8 @@ elseif firstinterval
 elseif block_begin
     artrej=0; %do not automatically reject artifacts to be able to count the block beginning
     savefilename=sprintf('EEG_SxA_Subj%i_AlphaResults_BlockBegin.mat',subj);
+elseif wholeRhythmTrial
+    savefilename=sprintf('EEG_SxA_Subj%i_AlphaResults_WholeRhythmTrial.mat',subj);
 elseif artrej
     savefilename=sprintf('EEG_SxA_Subj%i_AlphaResults_clean.mat',subj);
 else
@@ -94,10 +110,23 @@ for c=1:size(triggercodes,1) % For conditions
 
 
         % Get index for irregular trials without target in time window if analyzing the WS-target window
+        % Also get idx for irregular trials without a cue 400ms before WS
         if c==3 && ~catchonly && ~maskonly && ~block_begin
+
+            % Exclude irregular targets
             cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\Behavioural Preprocessed'
-            load(sprintf('SxA_ResultsSubject%i_Session2.mat',subj),'alldataclean')
+            load(sprintf('SxA_ResultsSubject%i_Session2.mat',subj),'alldataclean','subresults')
             idx_notar=ismember(alldataclean{(alldataclean{:,'Condition'}==c),'Irregular Target Time'},irrtartimes);
+
+            % exclude trials with 400ms cue
+            if excludeshortcue
+                last_cue=subresults.irrcuetimes(:,3); % in task only 3 intervals are used, the thirs one is from last cue to WS. No idea why i created four.
+                last_cue=last_cue(last_cue>0); % remove empty fields, leaves you will all irregular trials
+                idx_nocue=last_cue>mincue; % exclude all trials which are equal or closer than the mincue to the WS
+            else
+                idx_nocue=ones(size(segmentedData,3));
+            end
+
         else
             idx_notar=ones(size(segmentedData,3));
         end
@@ -107,7 +136,8 @@ for c=1:size(triggercodes,1) % For conditions
 
         % Remove trials with artifacts
         if artrej==1 && c==3 && ~catchonly && ~maskonly && ~block_begin
-            segmentedData=segmentedData(:,:,isNotArtifact & idx_notar);
+            segmentedData=segmentedData(:,:,isNotArtifact & idx_notar & idx_nocue);
+            %segmentedData=segmentedData(:,:,isNotArtifact & idx_notar);
         elseif artrej==1
             segmentedData=segmentedData(:,:,isNotArtifact==1);
         end
@@ -139,7 +169,7 @@ for c=1:size(triggercodes,1) % For conditions
     % TF Analysis
     tic
     parfor el=1:length(alpha_tfElectrodes)
-        [wvlt_amp, ~] = morletwave(alpha_wavFreqs, 12, squeeze(segmentedData(:,alpha_tfElectrodes(el),:))', srate, 0, 'waitbar', 'on'); % time points x frequnencies x trials
+        [wvlt_amp, ~] = morletwave(alpha_wavFreqs, 8, squeeze(segmentedData(:,alpha_tfElectrodes(el),:))',srate,'normalize',normmethod); % time points x frequnencies x trials
         inducedMat=squeeze(mean(wvlt_amp,3)); % average over trials
         condResults(:,:,el)=inducedMat'; % time points x frequencies x electrodes
     end
@@ -161,7 +191,7 @@ end
 cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\AlphaRes'
 
 if ~block_begin
-save(savefilename, 'alpha_Results', 'alpha_timeVecTotal', 'alpha_wavFreqs', 'alpha_tfElectrodes','alpha_ntrials',"power",'irrtartimes');
+    save(savefilename, 'alpha_Results', 'alpha_timeVecTotal', 'alpha_wavFreqs', 'alpha_tfElectrodes','alpha_ntrials',"power",'irrtartimes');
 else
     save(savefilename, 'alpha_Results', 'alpha_timeVecTotal', 'alpha_wavFreqs', 'alpha_tfElectrodes','alpha_ntrials',"power",'irrtartimes','block_begin_notartifact');
 end
