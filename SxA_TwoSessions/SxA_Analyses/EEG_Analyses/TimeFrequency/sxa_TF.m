@@ -2,8 +2,9 @@
 function []=sxa_TF(subj,baseline)
 %% TF Analysis
 % Input: Subject Number, generate plots (1/0)
+clearvars -except subj baseline
 disp('Starting Time Frequency Analysis')
-singletrials=0; %(save single trials?)
+singletrials=1; %(save single trials?)
 artrej=1; % already remove artifact trials?
 
 % Parameters (real analysis)
@@ -14,15 +15,16 @@ if baseline % baseline means, that the whole code will extract the TF at the bas
 else
     % Around WS
     triggercodes={71;72;73}; % Warning Signals per condition
-    timerange=[-200 1500];
+    timerange=[-300 1500];
 end
 
 paddingLength=500; % in ms
-TF_wavFreqs=2.^[0:1/6:5]; % Log Range
+TF_wavFreqs=1:40; % Log Range
+%TF_wavFreqs=2.^[0:1/6:5]; % Log Range
 %alpharange=8:12;
 
 % Load Data
-cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Preprocessed'
+cd 'Y:\el-Christina\SxA\SxA_Data\EEG Preprocessed'
 loadfilename=sprintf('EEG_SxA_Subj%i_Session2_pp.mat',subj);
 
 if singletrials
@@ -62,13 +64,13 @@ for c=1:size(triggercodes,1) % For conditions
     tic
     if ~singletrials
         parfor el=1:width(data)
-            [wvlt_amp, ~] = morletwave(TF_wavFreqs, 12, squeeze(segmentedData(:,el,:))', srate, 0, 'waitbar', 'on'); % time points x frequnencies x trials
+            [wvlt_amp, ~] = morletwave(TF_wavFreqs, 12, squeeze(segmentedData(:,el,:))', srate); % time points x frequnencies x trials
             inducedMat=squeeze(mean(wvlt_amp,3)); % average over trials
             condResults(:,:,el)=inducedMat'; % reformat to: time points x frequencies x electrodes
         end
     else
         parfor el=1:width(data)
-            [wvlt_amp, ~] = morletwave(TF_wavFreqs, 12, squeeze(segmentedData(:,el,:))', srate, 0, 'waitbar', 'on'); % time points x frequnencies x trials
+            [wvlt_amp, ~] = morletwave(TF_wavFreqs, 12, squeeze(segmentedData(:,el,:))', srate); % time points x frequnencies x trials
             inducedMat=wvlt_amp; % do not average over trials
             condResults(:,:,:,el)=permute(inducedMat,[2,1,3]); % reformat to: time points x frequencies x trials x electrodes
         end
@@ -86,9 +88,9 @@ for c=1:size(triggercodes,1) % For conditions
     TF_Results{c}=condResults; % Time Points, Frequencies, Trials, Electrodes
     TF_timeVecTotal{c}=timeVec;
     TF_NotArtifact{c}=isNotArtifact;
-    clear condResults segmentedData timeVec subj
+    clear condResults segmentedData timeVec
 end
-cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\TimeFreq'
+cd 'Y:\el-Christina\SxA\SxA_Results\New TF Results'
 if ~singletrials
     save(savefilename, 'TF_Results', 'TF_timeVecTotal', 'TF_wavFreqs');
 else
@@ -96,5 +98,5 @@ else
     TF_trial_timeVec=TF_timeVecTotal;
     save(savefilename, 'TF_Results_Trial','TF_trial_timeVec','TF_NotArtifact','-v7.3');
 end
-disp('TF Results Saved')
+fprintf('TF Results Saved - Subj %i',subj)
 end

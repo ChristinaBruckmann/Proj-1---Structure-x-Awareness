@@ -4,8 +4,8 @@
 clear; close all; clc
 
 %raw_data_path = 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\Raw\EEG Raw'; % The file selection dialog will open on this folder
-%raw_data_path = 'Z:\el-Christina\SxA\SxA_Data\Raw\EEG Raw\Second Batch (Post-TRF)';
-raw_data_path = 'D:\';
+raw_data_path = 'Z:\el-Christina\SxA\SxA_Data\Raw\EEG Raw\Second Batch (Post-TRF)';
+%raw_data_path = 'D:\';
 
 % necessary functions:
 % from fieldtrip: read_biosemi_bdf, read_24bit (plus all the read_24bit mex files), ReadBioSemiTriggerChannel

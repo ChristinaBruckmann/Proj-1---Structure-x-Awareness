@@ -2,7 +2,7 @@
 clear
 clc
 
-subj=[15 17:22];
+subj=[101:103 105:108 110:114 116:119 121 122 124 126 127 129:132];
 
 % Load Data
 for s=1:length(subj)

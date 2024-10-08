@@ -7,14 +7,14 @@
 clear
 clc
 
-subj=[17:22];
-%subj=[101:103 105:106 108 110:114 116:119 121 122 124 126 127 129 131 132];
+%subj=[17:22];
+subj=[101:103 105:108 110:114 116:119 121 122 124 126 127 129:132];
 alpharange=8:12;
 basec=1;
 catchonly=0;
 
 % Time Window for Statistics
-stats_tw=[700 800]; %from WS
+stats_tw=[800 900]; %from WS
 
 % Load Data
 for s=1:length(subj)
@@ -133,7 +133,7 @@ function createfigure_alpha_novar(X1, YMatrix1)
 figure1 = figure;
 
 % Create axes
-axes1 = axes('Parent',figure1,'Position',[0.112857142857143 0.0700000000000001 0.775 0.815000000000001]);
+axes1 = axes('Parent',figure1);
 hold(axes1,'on');
 
 % Create multiple lines using matrix input to plot
@@ -150,7 +150,7 @@ xline(0,'Parent',axes1,'Alpha',1,'LineStyle','--','LabelOrientation','horizontal
 %matlab.graphics.interactor.ListOfPointsHighlight('Visible','off','VertexData',zeros(3,0));
 
 % Create xline
-xline(800,'Parent',axes1,'Alpha',1,'LineStyle','--','LabelOrientation','horizontal','LineWidth',1,'FontSize',15,'Label','Predicted Target');
+xline(900,'Parent',axes1,'Alpha',1,'LineStyle','--','LabelOrientation','horizontal','LineWidth',1,'FontSize',15,'Label','Predicted Target');
 
 % % Create matlab.graphics.interactor.ListOfPointsHighlight
 % matlab.graphics.interactor.ListOfPointsHighlight('Visible','off','VertexData',zeros(3,0));
@@ -162,6 +162,8 @@ xlim(axes1,[-400 1500]);
 hold(axes1,'off');
 % Set the remaining axes properties
 set(axes1,'FontSize',15,'XTick',[0 400 800 1200 1600]);
+xlabel("time(ms)")
+ylabel("band Limited Amplitude (µs)")
 % Create legend
 legend1 = legend(['Rhythm', 'Interval',"Irregular","",""]);
 set(legend1,'Position',[0.660288949743352 0.582990712020913 0.158190580302694 0.132720591180465]);

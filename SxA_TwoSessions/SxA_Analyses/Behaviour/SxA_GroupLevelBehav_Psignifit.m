@@ -44,7 +44,7 @@ dataforpsignifit_total(2,3,:,1)=[1:10];
 % Run Psignifit 
 [psignifitsresults,midpoints]=fitpsychcurves(dataforpsignifit_total);
 
-% Plot Results
+%% Plot Results
 plotpsychometric(psignifitsresults,midpoints)
 
 %Save
@@ -141,34 +141,81 @@ function []=plotpsychometric(psignifitsresults,midpoints)
 plotOptions1.lineColor = [0.00,0.45,0.74];
 plotOptions1.dataColor = [0.00,0.45,0.74];
 plotOptions1.CIthresh = true;  
-plotOptions1.dataSize=2;
-plotOptions1.lineWidth = 2;
+plotOptions1.dataSize=1;
+plotOptions1.lineWidth = 3;
+
+plotOptions1.labelSize      = 15;                   % font size labels
+plotOptions1.fontSize       = 10;                   % font size numbers
+plotOptions1.plotAsymptote  = false;                 % plot Asympotes 
 plotOptions2.lineColor = [0.85,0.33,0.10];
 plotOptions2.dataColor = [0.85,0.33,0.10];
-plotOptions2.lineWidth = 2;
-plotOptions2.dataSize=2;
+plotOptions2.lineWidth = 3;
+plotOptions2.dataSize=1;
 plotOptions2.CIthresh = true;  
+plotOptions2.plotAsymptote  = false;                 % plot Asympotes 
+
 plotOptions3.lineColor = [0.93,0.69,0.13];
 plotOptions3.dataColor = [0.93,0.69,0.13];
-plotOptions3.dataSize=2;
-plotOptions3.lineWidth = 2;
+plotOptions3.dataSize=1;
+plotOptions3.lineWidth = 3;
 plotOptions3.CIthresh = true;  
+plotOptions3.plotAsymptote  = false;                 % plot Asympotes 
+plotOptions3.xlabel='Stimulus Intensity';
+plotOptions3.ylabel='Proporgdfgftion Correct';
 
-figure;
+fig=figure;
+fig.Position=[328.2000,  152.2000,  762.4000,  611.2000];
 subplot(2,1,1); [hline]=plotPsych(psignifitsresults{1}.obj,plotOptions1);
 hold on
 subplot(2,1,1); [hline2]=plotPsych(psignifitsresults{2}.obj,plotOptions2);
 subplot(2,1,1); [hline3]=plotPsych(psignifitsresults{3}.obj,plotOptions3);
-title('Objective All Trials')
-legend([hline,hline2,hline3],'Rhythm','Interval','Irregular')
+
+% Customize
+title('Objective Performance',"FontSize",15)
+leg1=legend([hline,hline2,hline3],'Rhythm','Interval','Irregular');
+leg1.Position=[0.75, 0.6267, 0.1, 0.1];
+ylabel('Proportion Correct',"FontSize",14)
+xlabel("Stimulus Level","FontSize",14)
+% axesHandles = findall(fig, 'Type', 'axes');
+% set(axesHandles, 'FontSize', 12);
 hold off
+
+plotOptions1.ylabel='Proportion Seen';
 
 subplot(2,1,2); [hline]=plotPsych(psignifitsresults{1}.subj,plotOptions1);
 hold on
 subplot(2,1,2); [hline2]=plotPsych(psignifitsresults{2}.subj,plotOptions2);
 subplot(2,1,2); [hline3]=plotPsych(psignifitsresults{3}.subj,plotOptions3);
-title('Subjective All Trials')
-legend([hline,hline2,hline3],'Rhythm','Interval','Irregular')
+
+% Customize
+title('Subjective Perception',"FontSize",15)
+%legend([hline,hline2,hline3],'Rhythm','Interval','Irregular',"Font Size",11)
+leg2=legend([hline, hline2, hline3], 'Rhythm', 'Interval', 'Irregular', 'FontSize', 11);
+leg2.Position=[0.75, 0.16    0.1    0.1];
+xlabel("Stimulus Level","FontSize",14)
+ylabel("Proportion 'Seen'","FontSize",14)
+
+% Whole Figure Properties
+axesHandles = findall(fig, 'Type', 'axes');
+set(axesHandles, 'FontSize', 12);
+lines = findall(fig, 'Type', 'Line'); % Find all line objects in the figure
+% Initialize an array to hold handles of straight lines
+straightLines = [];
+
+% Loop through each line to check its data
+for i = 1:length(lines)
+    xData = get(lines(i), 'XData');
+    yData = get(lines(i), 'YData');
+    
+    % Check for straight lines: 
+    % (can either be vertical or horizontal)
+    if all(diff(xData) == 0) || all(diff(yData) == 0) % Vertical or Horizontal
+        straightLines = [straightLines; lines(i)]; % Store the handle
+    end
+end
+
+% Display or modify straight lines as needed
+set(straightLines, 'LineWidth', 2); % Example: Change width of straight linesset(lines, 'LineWidth', 2); % Set the line width of all lines to 2
 
 % Plot Midpoints
 figure;

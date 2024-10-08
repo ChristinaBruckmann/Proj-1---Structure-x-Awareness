@@ -4,24 +4,23 @@
 clear
 clc
 
-batches=[1]; % 3 is combined
+batches=[2]; % 3 is combined
 subj1=[17:22];
-subj2=[101:103 105:108 110 112:114 116:119 121 122 124 126 127];
-subj3=[17:22 101:103 105:108 110 112:114 116:119 121 122 124 126 127];
+subj2=[101:103 105:108 110 112:114 116:119 121 122 124 126 127 129 130];
+subj3=[17:22 101:103 105:108 110 112:114 116:119 121 122 124 126 127 129 130];
 clusters=[1 2]; % (1-occipital, 2- central)
 trialtypes= [1]; % (1-all trials, 2 - catch trials)
 plotindividuals=[0]; % plot also individual participants
 varplotting=1; % add error bars to plot?
 
 % Time Window for Statistics
-stats_tw=[700 800]; %from WS
+stats_tw=[800 900]; %from WS
+shade=1; % shade the statistics window?
 %% Dir
-cd ' Z:\el-Christina\SxA\SxA_Results\Delta Results'
+cd ' Z:\el-Christina\SxA\SxA_Results\New Delta Results'
 
 %% Delta Average
 for cbatch=1:length(batches)
-
-    figure; t = tiledlayout('flow');
     % Define (change this, this is buggy for the wrong input)
     if batches(cbatch)==1
         subj=subj1;
@@ -46,10 +45,22 @@ for cbatch=1:length(batches)
             else
                 catchonly=1;
             end
-            % Load
+
+            % Load Data
+            %             if avg_done % If average has already been computed and saved (saves time!)
+            %                 if ccluster==1 && ~catchonly
+            %                     load("NewFreq_DeltaGL_Occ_All")
+            %                 elseif ccluster==1 && catchonly
+            %                     load("NewFreq_DeltaGL_Occ_Catch")
+            %                 elseif ccluster==2 && ~catchonly
+            %                     load("NewFreq_DeltaGL_Occ_All")
+            %                 elseif ccluster==2 && catchonly
+            %                     load("NewFreq_DeltaGL_Occ_Catch")
+            %                 end
+            %             else % If average has not been computed and saved, do that!
             for s=1:length(subj)
                 if ccluster==1 && ~catchonly
-                    loadfilename=sprintf('OccipitalAll_Subj%i',subj(s));
+                    loadfilename=sprintf('NewFreq_OccipitalAll_Subj%i',subj(s));
                     load(loadfilename,"Delta_SingleTrials_occ","ITPCdelta_timevec_occ","ITPCdelta_nTrials_occ") %(time points x electrodes x trials)
                     for c=1:3
                         Delta_SingleTrials(s,c,:,:)=circ_r(Delta_SingleTrials_occ{c},[], [], 3);
@@ -58,7 +69,7 @@ for cbatch=1:length(batches)
                     end
                     subtitle='All Trials Occipital';
                 elseif ccluster==1 && catchonly
-                    loadfilename=sprintf('OccipitalCatch_Subj%i',subj(s));
+                    loadfilename=sprintf('NewFreq_OccipitalCatch_Subj%i',subj(s));
                     load(loadfilename,"Delta_SingleTrials_occ_catch","ITPCdelta_timevec_occ_catch","ITPCdelta_nTrials_occ_catch") %(time points x electrodes x trials)
                     for c=1:3
                         Delta_SingleTrials(s,c,:,:)=circ_r(Delta_SingleTrials_occ_catch{c},[], [], 3);
@@ -67,7 +78,7 @@ for cbatch=1:length(batches)
                     end
                     subtitle='Catch Occipital';
                 elseif ccluster==2 && ~catchonly
-                    loadfilename=sprintf('CentralAll_Subj%i',subj(s));
+                    loadfilename=sprintf('NewFreq_CentralAll_Subj%i',subj(s));
                     load(loadfilename,"Delta_SingleTrials_cen","ITPCdelta_timevec_cen","ITPCdelta_nTrials_cen") %(time points x electrodes x trials)
                     for c=1:3
                         Delta_SingleTrials(s,c,:,:)=circ_r(Delta_SingleTrials_cen{c},[], [], 3);
@@ -76,7 +87,7 @@ for cbatch=1:length(batches)
                     end
                     subtitle='All Trials Central';
                 elseif ccluster==2 && catchonly
-                    loadfilename=sprintf('CentralCatch_Subj%i',subj(s));
+                    loadfilename=sprintf('NewFreq_CentralCatch_Subj%i',subj(s));
                     load(loadfilename,"Delta_SingleTrials_cen_catch","ITPCdelta_timevec_cen_catch","ITPCdelta_nTrials_cen_catch") %(time points x electrodes x trials)
                     for c=1:3
                         Delta_SingleTrials(s,c,:,:)=circ_r(Delta_SingleTrials_cen_catch{c},[], [], 3);
@@ -89,7 +100,7 @@ for cbatch=1:length(batches)
 
             % Average
             timeVec=squeeze(Delta_TimeVec(1,1,:)); % All TV are identical
-            nTrials=mean(Delta_Ntrials,1); % nTrials for chance ITPC calculation
+           % nTrials=mean(Delta_Ntrials,1); % nTrials for chance ITPC calculation
 
             for c=1:3
                 SubjMean=squeeze(mean(Delta_SingleTrials(:,c,:,elec),1));
@@ -103,27 +114,55 @@ for cbatch=1:length(batches)
                 angle_mean(c)=mean(circ_r(angles));
                 angle_std(c)=std(circ_r(angles));
 
-                % Average for each participant across trials and participants
+                % Average for each participant across trials and electrodes
                 for s=1:length(subj)
-                PartMean(s,c,:)=squeeze(mean(Delta_SingleTrials(s,c,:,elec),4));
+                    PartMean(s,c,:)=squeeze(mean(Delta_SingleTrials(s,c,:,elec),4));
+                end
+
+                % Save
+                if ccluster==1 && ~catchonly
+                    savefilename="GL_Delta_Occ_All";
+                    save(savefilename,"PartMean","Delta_Ntrials","angle_mean","angle_std","timeVec")
+                elseif ccluster==1 && catchonly
+                    savefilename="GL_Delta_Occ_Catch";
+                    save(savefilename,"PartMean","Delta_Ntrials","angle_mean","angle_std","timeVec")
+                elseif ccluster==2 && ~catchonly
+                    savefilename="GL_Delta_Cen_All";
+                    save(savefilename,"PartMean","Delta_Ntrials","angle_mean","angle_std","timeVec")
+                elseif ccluster==2 && catchonly
+                    savefilename="GL_Delta_Cen_Catch";
+                    save(savefilename,"PartMean","Delta_Ntrials","angle_mean","angle_std","timeVec")
                 end
             end
+%             end
+        end
+    end
+end  
+%% Statistics in ROI Time Window
+for cbatch=1:length(batches)
+    for ccluster=clusters
+        for trialt=trialtypes
+        delta_tw=PartMean(:,:,timeVec>=stats_tw(1)&timeVec<=stats_tw(2)); % select only time window
+        delta_tw=mean(delta_tw,3); % average across time points
 
-            %% Statistics in ROI Time Window
-            delta_tw=PartMean(:,:,timeVec>=stats_tw(1)&timeVec<=stats_tw(2)); % select only time window
-            delta_tw=mean(delta_tw,3); % average across time points
-
-            % Rhythm higher than irregular?
-            [h_delta(1),p_delta(1),~,stats_delta(1,:)] = ttest(delta_tw(:,1),delta_tw(:,3),"Tail","right");
-            % Interval higher than irregular?
-            [h_delta(2),p_delta(2),~,stats_delta(2,:)] = ttest(delta_tw(:,2),delta_tw(:,3),"Tail","right");
-            % Difference between rhythm and interval?
-            [h_delta(3),p_delta(3),~,stats_delta(3,:)] = ttest(delta_tw(:,1),delta_tw(:,2));
-
-            %% Plot
+        % Rhythm higher than irregular?
+        [h_delta(1),p_delta(1),~,stats_delta(1,:)] = ttest(delta_tw(:,1),delta_tw(:,3),"Tail","right");
+        % Interval higher than irregular?
+        [h_delta(2),p_delta(2),~,stats_delta(2,:)] = ttest(delta_tw(:,2),delta_tw(:,3),"Tail","right");
+        % Difference between rhythm and interval?
+        [h_delta(3),p_delta(3),~,stats_delta(3,:)] = ttest(delta_tw(:,1),delta_tw(:,2));
+        end
+    end
+end
+%% Plot
+for cbatch=1:length(batches)
+    figure; t = tiledlayout('flow');
+    for ccluster=clusters
+        for trialt=trialtypes
             nexttile
             for c=1:3
 
+                % Choose Colours
                 if c==1
                     colourvec1=[0.00,0.45,0.74];
                     colourvec2=[0.75,0.87,0.96];
@@ -135,6 +174,7 @@ for cbatch=1:length(batches)
                     colourvec2=[1.00,0.93,0.75];
                 end
 
+                % Plot (with variances?)
                 if varplotting
                     varplot(timeVec,squeeze(PartMean(:,c,:))',"LineWidth",2,'Color',colourvec1)
                 else
@@ -143,6 +183,7 @@ for cbatch=1:length(batches)
                 ylim([0 0.6])
                 hold on
 
+                % Plot Individual Means
                 if plotindividuals
                     for s=1:length(subj)
                         plot(timeVec,squeeze(PartMean(s,c,:)),"LineWidth",1,'Color',colourvec2)
@@ -151,29 +192,36 @@ for cbatch=1:length(batches)
                 yline(angle_mean(c))
             end
 
+            % Choose
             if catchonly
                 xlim([-1500 400])
                 xticks([-1200:400:400])
-                xline(-800)
+                xline(-900)
                 title('Catch Trials')
             else
                 xlim([-700 1200])
                 xticks([-400:400:1200])
                 xticklabels({'-1200','-800','-400','0','400','800'})
-                xline(800)
+                xline(900)
                 title('All Trials')
             end
             xline(0)
             yticks([0:0.2:0.6])
             box off
             title(subtitle)
+            
+            if shade % Shades the statistics window
+                y_limits = ylim;
+                patch([stats_tw(1) stats_tw(2) stats_tw(2) stats_tw(1)], [y_limits(1) y_limits(1) y_limits(2) y_limits(2)], 'red', 'FaceAlpha', 0.3, 'EdgeColor', 'none'); 
+            end
+
             if cbatch==3
                 headline=sprintf('Delta ITPC All Subjects');
             else
-                headline=sprintf('Delta ITPC Batch %i',cbatch);
+                headline=sprintf('Delta ITPC Batch %i',batches(cbatch));
             end
             title(t,headline)
-            clearvars -except t subj elec subj1 subj2 subj3 clusters catchonly trialtypes cbatch trialt ccluster batches plotindividuals varplotting stats_tw
+            clearvars -except t subj elec subj1 subj2 subj3 clusters catchonly trialtypes cbatch trialt ccluster batches plotindividuals varplotting stats_tw shade
         end
     end
 end
@@ -255,6 +303,6 @@ for cbatch=1:length(batches)
             end
         end
         title(t,"Delta ITPC Topography before Target Onset")
-        clearvars -except t subj elec subj1 subj2 subj3 clusters catchonly trialtypes cbatch trialt ccluster batches plotindividuals
+        clearvars -except t subj elec subj1 subj2 subj3 clusters catchonly trialtypes cbatch trialt ccluster batches plotindividuals stats_tw
     end
 end

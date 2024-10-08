@@ -70,8 +70,8 @@ end
 
 
 % Load Data
-%cd 'Z:\el-Christina\SxA\SxA_Data\EEG Preprocessed'
-cd 'D:\'
+cd 'Z:\el-Christina\SxA\SxA_Data\EEG Preprocessed'
+%cd 'D:\'
 
 loadfilename=sprintf('EEG_SxA_Subj%i_Session2_pp.mat',subj);
 if catchonly
@@ -124,7 +124,7 @@ for c=1:size(triggercodes,1) % For conditions
                 last_cue=last_cue(last_cue>0); % remove empty fields, leaves you will all irregular trials
                 idx_nocue=last_cue>mincue; % exclude all trials which are equal or closer than the mincue to the WS
             else
-                idx_nocue=ones(size(segmentedData,3));
+                idx_nocue=ones(size(segmentedData,3),1);
             end
 
         else

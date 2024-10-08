@@ -4,13 +4,21 @@
 
 clear
 clc
-%subj=[101:103 105:108 110:114 116:119 121:122 124 126 127 129 131 132];
-subj=[124 126 127 129 131 132];
-% Single Subject
+subj=[101:103 105:108 110:114 116:119 121:122 124 126 127 129 131 132];
+%subj=[124 126 127 129 131 132];
+lpf_cutoff=20;
+irrtartimes=[3]; % when irregular targets can appear (1 and 2 before 800ms, 3 is 800ms, 4 and 5 after 800ms)
+
+onlyvis=0;
+vislevels=[6:10]; % Which trials are classified as visible?
+
+tarfree_before800=1; % only choose irregular trials which have a target at or after 800
+tar_at800=1; % only choose irregular trials which have a target at 800
+%% Single Subject
 for s=1:length(subj)
     disp('Starting CNV Analysis')
     % Load data
-    cd 'Z:\el-Christina\SxA\SxA_Data\EEG Preprocessed'
+    cd 'Y:\el-Christina\SxA\SxA_Data\EEG Preprocessed'
     loadfilename=sprintf('EEG_SxA_Subj%i_Session2_pp.mat',subj(s));
     savefilename=sprintf('EEG_SxA_Subj%i_CNV.mat',subj(s));
     load(loadfilename)
@@ -32,9 +40,7 @@ for s=1:length(subj)
         % Segment Data
         [CNV_SingleTrials, isNotArtifact, CNV_timeVec]=segmentContEEGdata(triggercodes{c}, timerange, data, triggers, artifacts, srate);
 
-        % Select Specific Trials Only
-        onlyvis=0;
-        vislevels=[6:10]; % Which trials are classified as visible?
+        % Select Only Visible Trials
         if onlyvis
             load(sprintf('SxA_ResultsSubject%i_Session2.mat',subj(s)),'alldataclean')
             idx_vis=ismember(alldataclean{(alldataclean{:,'Condition'}==c),'Contrast Level'},vislevels);
@@ -42,11 +48,20 @@ for s=1:length(subj)
             idx_vis=ones(size(CNV_SingleTrials,3),1);
         end
 
+        % Select only irregular trials with targets at moments specified above (tendentially only at or after 800 to reduce smearing)
+        if c==3
+            cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\Behavioural Preprocessed'
+            load(sprintf('SxA_ResultsSubject%i_Session2.mat',subj(s)),'alldataclean','subresults')
+            idx_notar=ismember(alldataclean{(alldataclean{:,'Condition'}==c),'Irregular Target Time'},irrtartimes);
+        else
+            idx_notar=ones(size(CNV_SingleTrials,3),1);
+        end
+
         % Remove trials with artifacts
         %artrej=input("Remove artifact trials (1=yes)? ");
         artrej=1;
         if artrej==1
-            CNV_SingleTrials=CNV_SingleTrials(:,:,(isNotArtifact & idx_vis));
+            CNV_SingleTrials=CNV_SingleTrials(:,:,(isNotArtifact & idx_vis& idx_notar));
         end
 
         % Select region of interest (some occipital electrodes)
@@ -60,8 +75,8 @@ for s=1:length(subj)
         CNV_perElec=mean(CNV_SingleTrials(:,CNV_allroiidx,:),3);
 
         CNV_Mean(c,:)=mean(CNV_perElec,2);
-
-        cd 'Z:\el-Christina\SxA\SxA_Results\CNV Results'
+        CNV_Mean(c,:)=LPF( CNV_Mean(c,:), 1024, lpf_cutoff); % low pass filter the mean
+        cd 'Y:\el-Christina\SxA\SxA_Results\CNV Results'
         save(savefilename,'CNV_Mean','CNV_electodes','CNV_timeVec')
 
         % disp('CNV results saved')
@@ -76,7 +91,7 @@ for s=1:length(subj)
         %             x1.FontSize = 8;
         %             x2.FontSize = 8;
         %         end
-
+    
         subplot(1,3,c); plot(CNV_timeVec,CNV_Mean(c,:))
         title(sprintf('Average Activity from ROI channels %s', strcat(CNV_channelnames{CNV_allroiidx,1})))
         xline(0,'r--','Warning Signal');
@@ -87,25 +102,50 @@ end
 
 %% Group Level 
 
-lpf_cutoff=20;
+bc=1; % baseline correct
+bc_win=[-200 0]; % 0 is warning signal
 
 % Load Data
 for s=1:length(subj)
-    cd 'Z:\el-Christina\SxA\SxA_Results\CNV Results'
+    cd 'Y:\el-Christina\SxA\SxA_Results\CNV Results'
     loadfilename=sprintf('EEG_SxA_Subj%i_CNV.mat',subj(s));
-    load(loadfilename,'CNV_Mean')
-    for c=1:3 % conditions
-    CNV_GL(s,c,:)=CNV_Mean(c,:);
-    end
+    load(loadfilename,'CNV_Mean','CNV_timeVec')
+    CNV_GL(s,:,:)=CNV_Mean;
+    timeVec_GL(s,:)=CNV_timeVec;
 end
 
-% Average
+% Average 
+timeVec=timeVec_GL(1,:);
+CNV_GL_Mean=squeeze(mean(CNV_GL,1));
+
+% Baseline correct
+if bc
+    bl_activity=CNV_GL_Mean(:,timeVec>=bc_win(1) &timeVec<=bc_win(2));
+    bl=mean(bl_activity,2);
+    CNV_GL_Mean=CNV_GL_Mean-bl;
+end
+
+% Plot
+
 figure;
 for c=1:3 % conditions
-    CNV_GL_Mean(c,:)=mean(squeeze(CNV_GL(:,c,:)),1);
-    CNV_GL_Mean(c,:)=LPF( CNV_GL_Mean(c,:), 1024, lpf_cutoff);
+    plot(CNV_timeVec,CNV_GL_Mean(c,:),"LineWidth",3)
+    hold on
+end
+    title(sprintf('Average Activity from ROI channels.'))
+    xline(0,'r--','Warning Signal');
+    xline(900,'b--','Predicted Target');
+    legend(["Rhythm","Interval","Irregular"])
+
+figure;
+tiledlayout(1,3);
+for c=1:3 % conditions
+    %CNV_GL_Mean(c,:)=mean(squeeze(CNV_GL(:,c,:)),1);
+    %CNV_GL_Mean(c,:)=LPF( CNV_GL_Mean(c,:), 1024, lpf_cutoff);
     % Plot
-    subplot(1,3,c); plot(CNV_timeVec,CNV_GL_Mean(c,:))
+    nexttile
+    %subplot(1,3,c); 
+    plot(CNV_timeVec,CNV_GL_Mean(c,:))
     title(sprintf('Average Activity from ROI channels.'))
     xline(0,'r--','Warning Signal');
     xline(900,'b--','Predicted Target');
