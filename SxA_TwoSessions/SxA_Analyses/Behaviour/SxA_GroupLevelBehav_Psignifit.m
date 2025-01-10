@@ -2,9 +2,8 @@
 clear
 clc
 
-subjects=[101:103 105:106 108 110 111 112 113 114 116 117 118 119 121:124 126 127 129 130 131 132];
-%subjects=[15 17:22];
-cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\Behavioural Preprocessed'
+subjects=[101:103 105:106 108 110 111 112 113 114 116 117 118 119 121:124 126 127 129 130 131 132 133];
+cd 'Y:\el-Christina\SxA\SxA_Data\Behaviour Preprocessed'
 
 % Load Data And Merge
 dataforpsignifit_total=zeros(2,3,10,3); %obj/subj, condition, levels, variables

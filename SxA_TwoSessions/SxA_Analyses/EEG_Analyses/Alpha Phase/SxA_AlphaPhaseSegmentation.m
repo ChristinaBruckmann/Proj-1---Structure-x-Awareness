@@ -106,14 +106,14 @@ for s=1:length(subj)
    % cd 'Z:\el-Christina\SxA\SxA_Results\AlphaPhaseRes'
     if catchonly
         if cluster==1
-            savefilename=sprintf('OccipitalCatch_Subj%i',subj(s));
+            savefilename=sprintf('Alpha_OccipitalCatch_Subj%i',subj(s));
             Alpha_SingleTrials_occ_catch=Alpha_SingleTrials;
             ITPCalpha_nTrials_occ_catch=ITPCalpha_nTrials;
             ITPCalpha_timevec_occ_catch=ITPCalpha_timevec;
             ITPCalpha_jack_occ_catch=ITPCalpha_jack;
             save(savefilename, "Alpha_SingleTrials_occ_catch","ITPCalpha_nTrials_occ_catch","ITPCalpha_timevec_occ_catch","ITPCalpha_jack_occ_catch",'-v7.3')
         else
-            savefilename=sprintf('CentralCatch_Subj%i',subj(s));
+            savefilename=sprintf('Alpha_CentralCatch_Subj%i',subj(s));
             Alpha_SingleTrials_cen_catch=Alpha_SingleTrials;
             ITPCalpha_nTrials_cen_catch=ITPCalpha_nTrials;
             ITPCalpha_timevec_cen_catch=ITPCalpha_timevec;
@@ -122,14 +122,14 @@ for s=1:length(subj)
         end
     else
         if cluster==1
-            savefilename=sprintf('OccipitalAll_Subj%i',subj(s));
+            savefilename=sprintf('Alpha_OccipitalAll_Subj%i',subj(s));
             Alpha_SingleTrials_occ=Alpha_SingleTrials;
             ITPCalpha_nTrials_occ=ITPCalpha_nTrials;
             ITPCalpha_timevec_occ=ITPCalpha_timevec;
             ITPCalpha_jack_occ=ITPCalpha_jack;
             save(savefilename, "Alpha_SingleTrials_occ","ITPCalpha_nTrials_occ","ITPCalpha_timevec_occ","ITPCalpha_jack_occ",'-v7.3')
         else
-            savefilename=sprintf('CentralAll_Subj%i',subj(s));
+            savefilename=sprintf('Alpha_CentralAll_Subj%i',subj(s));
             Alpha_SingleTrials_cen=Alpha_SingleTrials;
             ITPCalpha_nTrials_cen=ITPCalpha_nTrials;
             ITPCalpha_timevec_cen=ITPCalpha_timevec;

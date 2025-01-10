@@ -4,7 +4,7 @@
 % takes subj number as input and saves the resulting file without providing direct output
 %% Load and clean up each session
 function SxA_SingleSubjBehav_MergeSessions(subj_n)
-cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\Raw\Behaviour Raw'
+cd 'Y:\el-Christina\SxA\SxA_Data\Raw\Behaviour Raw\Second Batch (Post-TRF)'
 % Session 1
 % subj_n=input('Subject Number? ');
 filename1=sprintf('SxA1.1_s%i-session1.mat',subj_n);
@@ -19,7 +19,7 @@ subresults.trialmatrix3=[subresults1.subresults.trialmatrix3;subresults2.subresu
 subresults.conditions=[subresults1.subresults.conditions;subresults2.subresults.conditions];
 subresults.data=[subresults1.subresults.data;subresults2.subresults.data];
 
-cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\Raw\Behaviour Raw'
+cd 'Y:\el-Christina\SxA\SxA_Data\Raw\Behaviour Raw\Second Batch (Post-TRF)'
 
 save(savename,'subresults')
 

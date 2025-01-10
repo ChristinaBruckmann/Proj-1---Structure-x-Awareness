@@ -1,4 +1,4 @@
-%% Analysis of Delta Phase
+%% Analysis of Alpha Phase
 % Addition: Individual Trial data gets saved to that they can all be plotted and compared.
 
 function SxA_AlphaPhaseExtraction(subj)

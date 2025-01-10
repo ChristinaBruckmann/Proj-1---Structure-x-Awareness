@@ -6,16 +6,17 @@
 clear
 clc
 
-avg_done=0; % Average already computed (saves time) or compute here?
+avg_done=1; % Average already computed (saves time) or compute here?
 subj=[101:103 105:108 110 112:114 116:119 121 122 124 126 127 129 130];
 clusters=[1 2]; % (1-occipital, 2- central)
 trialtypes= [1]; % (1-all trials, 2 - catch trials)
 plotindividuals=[0]; % plot also individual participants
-varplotting=0; % add error bars to plot?
+varplotting=1; % add error bars to plot?
 
 % Time Window for Statistics
 stats_tw=[800 900]; %from WS
-shade=1; % shade the statistics window?
+shade=0; % shade the statistics window?
+clust_perm=1; % plot cluster based perm results?
 
 %% Dir
 cd ' Y:\el-Christina\SxA\SxA_Results\New Delta Results'
@@ -159,11 +160,36 @@ for ccluster=clusters
             load("GL_Delta_Cen_Catch")
         end
 
-        % Average Across Participants
-        Delta=squeeze(mean(PartMean(:,:,:,elec),1));
+        % Cluster Based Permutation
+        if clust_perm
+            if trialt==1
+                cluster_data=squeeze(mean(PartMean(:,:,:,elec),4)); %average across electodes
+            else
+                cluster_data=Part_Delta;
+            end
+            % Rhy - Irr
+            [Rhy_Clusters]=clusterBasedPermTest(squeeze(cluster_data(:,1,:)), squeeze(cluster_data(:,3,:)), 1);
 
-        % Average Across Electrodes
-        Delta=squeeze(mean(Delta,3));
+            % Int - Irr
+            [Int_Clusters]=clusterBasedPermTest(squeeze(cluster_data(:,2,:)), squeeze(cluster_data(:,3,:)), 1) ;
+
+            % Rhy - Int
+            [RhyInt_Clusters]=clusterBasedPermTest(squeeze(cluster_data(:,1,:)), squeeze(cluster_data(:,2,:)), 1);
+
+        end
+
+        % Average
+        if trialt==1  % Correct way
+            % Average Across Participants
+            Delta=squeeze(mean(PartMean(:,:,:,elec),1));
+
+            % Average Across Electrodes
+            Delta=squeeze(mean(Delta,3));
+            Part_Delta=squeeze(mean(PartMean(:,:,:,elec),4));
+        else % apparently did not save electrodes separately for catch trials, thus, do this:
+            Delta=squeeze(mean(PartMean(:,:,:),1));  % Average Across Participants
+            Part_Delta=PartMean;
+        end
 
         nexttile
         for c=1:3
@@ -182,7 +208,7 @@ for ccluster=clusters
 
             % Plot (with variances?)
             if varplotting
-                varplot(timeVec,squeeze(PartMean(:,c,:))',"LineWidth",2,'Color',colourvec1)
+                varplot(timeVec,squeeze(Part_Delta(:,c,:))',"LineWidth",2,'Color',colourvec1)
             else
                 plot(timeVec,Delta(c,:),"LineWidth",2,'Color',colourvec1)
             end
@@ -198,18 +224,44 @@ for ccluster=clusters
             end
         end
 
+        % Plot Significant Clusters
+        if clust_perm
+            ylimits = ylim;
+            for cl=1:size(Rhy_Clusters,1) % Rhythm-Irregular
+                startcl=timeVec(Rhy_Clusters(cl,1)); % Get start point of cluster
+                endcl= startcl+Rhy_Clusters(cl,2);% Get end point of cluster
+                line([startcl endcl],[ylimits(2)-0.08 ylimits(2)-0.08], 'Color',[0 0.4470 0.7410], 'LineWidth', 2)
+            end
+
+            for cl=1:size(Int_Clusters,1) % Interval - Irregular
+                startcl=timeVec(Int_Clusters(cl,1)); % Get start point of cluster
+                endcl= startcl+Int_Clusters(cl,2);% Get end point of cluster
+                line([startcl endcl],[ylimits(2)-0.1 ylimits(2)-0.1], 'Color',[0.8500 0.3250 0.0980], 'LineWidth', 2)
+            end
+
+            for cl=1:size(RhyInt_Clusters,1) %  Rhythm - Interval
+                startcl=timeVec(RhyInt_Clusters(cl,1)); % Get start point of cluster
+                endcl= startcl+RhyInt_Clusters(cl,2);% Get end point of cluster
+                line([startcl endcl], [ylimits(2)-0.12 ylimits(2)-0.12], 'Color',[0 0 0], 'LineWidth', 2)
+            end
+        end
+
         % Choose
         if catchonly
             xlim([-1500 400])
             xticks([-1200:400:400])
             xline(-900)
            % line(0)
-            title('Catch Trials')
+             if ccluster==1
+                title('Occipital Cluster')
+            else
+                title('Central Cluster')
+            end
         else
             xlim([-700 1200])
             xticks([-400:400:1200])
-            xline(900,"-","Target","FontSize",12)
-            xline(0,"-", "Warning Signal","FontSize",12)
+            xline(900,"-","Target","FontSize",12,"LabelOrientation","horizontal")
+            xline(0,"-", "Warning Signal","FontSize",12,"LabelOrientation","horizontal")
             if ccluster==1
                 title('Occipital Cluster')
             else
@@ -218,6 +270,8 @@ for ccluster=clusters
         end
        % xline(0)
         yticks([0:0.2:0.6])
+        ylabel('Delta (0.66-1.87 Hz) ITPC')
+        xlabel('Time (ms)')
         ax=gca;
         ax.FontSize = 12;
         box off

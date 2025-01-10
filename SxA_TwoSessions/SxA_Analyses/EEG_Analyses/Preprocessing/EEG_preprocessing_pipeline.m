@@ -74,23 +74,6 @@ if removeEXG8
     SDATA.data=SDATA.data(:,1:end-1);
     SDATA.info.channel_labels=SDATA.info.channel_labels(1:end-1);
 end
-
-AnonymousTriggers1=zeros(length(SDATA.events.triggerChannel),1);
-for trigidx=1:length(SDATA.events.triggerChannel)
-   if ismember(SDATA.events.triggerChannel(trigidx),[254 255]) % Start/End of block
-        AnonymousTriggers1(trigidx)=2000;
-% %    elseif ismember(SDATA.events.triggerChannel(trigidx),[31 32 33]) % Start of trial
-% %         AnonymousTriggers1(trigidx)=1000;
-   end
-end
-
-hpf_cutoff_for_disp=0.1;
-show_data = [HPF(double(SDATA.data),SDATA.info.sampling_rate,hpf_cutoff_for_disp,3) AnonymousTriggers1];
-
-multichanplot(show_data, 10, 'srate', SDATA.info.sampling_rate, 'channelnames', [SDATA.info.channel_labels; {'Anonymous Triggers'};], 'ylim', [-100 100]);
-
-
-
 %% 3. Mark bad electrodes
 SDATA.metadata.bad_electrodes=[];
 SDATA.metadata.good_electrodes=1:size(SDATA.data,2);
@@ -98,22 +81,11 @@ SDATA.metadata.analysisStageDone=2;
 
 clear EEGdata session_data 
 %% 3.1: inspect data
-% Add trigger channel to see start end end of trials
-AnonymousTriggers2=zeros(length(SDATA.events.triggerChannel),1);
-for trigidx=1:length(SDATA.events.triggerChannel)
-    if ismember(SDATA.events.triggerChannel(trigidx),[31 32 33]) % Start of trial
-        AnonymousTriggers2(trigidx)=400;
-    elseif ismember(SDATA.events.triggerChannel(trigidx),[231 232 233 234 241 242 243 244 250 251 252 253]) % End of trial
-        AnonymousTriggers2(trigidx)=800;
-    elseif ismember(SDATA.events.triggerChannel(trigidx),[254 255]) % Start/End of block
-        AnonymousTriggers2(trigidx)=2000;
-    end
-end
 
 hpf_cutoff_for_disp=0.1;
-show_data = [HPF(double(SDATA.data),SDATA.info.sampling_rate,hpf_cutoff_for_disp,3) AnonymousTriggers2];
+show_data = [HPF(double(SDATA.data),SDATA.info.sampling_rate,hpf_cutoff_for_disp,3)];
 
-multichanplot(show_data, 10, 'srate', SDATA.info.sampling_rate, 'channelnames', [SDATA.info.channel_labels; {'Anonymous Triggers'};], 'ylim', [-100 100]);
+multichanplot(show_data, 10, 'srate', SDATA.info.sampling_rate, 'channelnames', [SDATA.info.channel_labels;], 'ylim', [-100 100]);
 
 clear show_data
 
@@ -149,7 +121,7 @@ SDATA.metadata.analysisStageDone=4;
 
 
 
-%% 5. detrend blocks and concatenate
+%% 5. detrend blocks and concatenaten
 edgeWinForBlockEnd = 10;
 
 % divide data into blocks
@@ -318,11 +290,11 @@ reconstructedData = ( SDATA.ica.mix * diag(cmp) * SDATA.ica.unmix * dataForICA' 
 %% 7.6: Inspect reconstruction
 clc
 
-show_data = [VEOG HEOG dataForICA AnonymousTriggers1];
-multichanplot(show_data, 10, 'srate', SDATA.info.sampling_rate, 'channelnames', [clean_channels_labels_with_bipolar; {'Anonymous Trigger'}], 'ylim', [-100 100]);
+show_data = [VEOG HEOG dataForICA];
+multichanplot(show_data, 10, 'srate', SDATA.info.sampling_rate, 'channelnames', [clean_channels_labels_with_bipolar;], 'ylim', [-100 100]);
 title('Original data')
-show_data = [VEOG HEOG reconstructedData AnonymousTriggers1];
-multichanplot(show_data, 10, 'srate', SDATA.info.sampling_rate, 'channelnames', [clean_channels_labels_with_bipolar; {'Anonymous Trigger'}], 'ylim', [-100 100]);
+show_data = [VEOG HEOG reconstructedData];
+multichanplot(show_data, 10, 'srate', SDATA.info.sampling_rate, 'channelnames', [clean_channels_labels_with_bipolar;], 'ylim', [-100 100]);
 title('Reconstructed data')
 
 
@@ -339,8 +311,8 @@ clear reconstructedData dataForICA
 SDATA.metadata.analysisStageDone=7;
 
 
-% show_data = [VEOG HEOG SDATA.data AnonymousTriggers1];
-% multichanplot(show_data, 10, 'srate', SDATA.info.sampling_rate, 'channelnames', [clean_channels_labels_with_bipolar; {'Anonymous Trigger'}], 'ylim', [-100 100]);
+% show_data = [VEOG HEOG SDATA.data];
+% multichanplot(show_data, 10, 'srate', SDATA.info.sampling_rate, 'channelnames', [clean_channels_labels_with_bipolar], 'ylim', [-100 100]);
 %% 8. semi-automatic artifact rejection %%
 
 %% 8.1: automatic artifact detection

@@ -1,7 +1,7 @@
 %% Single Subject Analysis (Structure x Awareness)
 
 function SxA_SingleSubjBehav_Analysis(subj_n,session_n,plots)
-cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\Raw\Behaviour Raw'
+cd 'Y:\el-Christina\SxA\SxA_Data\Raw\Behaviour Raw\Second Batch (Post-TRF)'
 
 % subj_n=input('Subject Number? ');
 % session_n=input('Session(1/2) or Merged (3)? ');
@@ -17,7 +17,7 @@ end
 
 load(loadname)
 %% Clean Up Data File & Basic Checks
-cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\Behavioural Preprocessed'
+cd 'Y:\el-Christina\SxA\SxA_Data\Behaviour Preprocessed'
 % Check frame rate:
 meanfrrate=mean(subresults.data{:,"Frame Rate"});
 

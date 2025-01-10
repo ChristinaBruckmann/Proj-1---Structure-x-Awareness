@@ -2,8 +2,8 @@
 
 clear
 clc
-subj=[101:103 105:108 110 112:114];
-cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\AlphaPhaseRes'
+subj=[101:103 105:108 110 112:114 116:119 121 122 124 126 127 129 130:132];
+cd 'Y:\el-Christina\SxA\SxA_Results\AlphaPhaseRes'
 cluster=1; %(1 occipital, 2 central)
 catchonly=0; %(1-yes)
 

@@ -5,23 +5,20 @@ clc
 %% Parameters
 freqs=8:12;
 elecs=[25:30 62:64]; % occipital
-subj=[101:103 105:108 110 112:114 117:119 121 122 124 126 127 129 130]; 
+subj=[101:103 105:108 110 112:114 116:119 121 122 124 126 127 129 130]; 
 downsample=1; % downsample time to 30ms windows for faster processing?
-irrtartimes=[3 4 5]; % when irregular targets can appear (1 and 2 before 900ms, 3 is 900ms, 4 and 5 after 900ms)
 
 %% Run for each subject
 for s=1:length(subj)
     %% Load Data
     % EEG
-    % cd 'Y:\el-Christina\SxA\SxA_Results\New TF Results'
-    cd '/home/cbruckmann/LogRegStuff/New TF Results'
+    cd 'Y:\el-Christina\SxA\SxA_Results\New TF Results'
     loadfilename=sprintf('EEG_SxA_Subj%i_TF_SingleTrials.mat',subj(s));
-    savefilename=sprintf('EEG_SxA_LogRes_GL_subj%i.mat',subj(s));
+    savefilename=sprintf('EEG_SxA_Subj%i_LogRegRes.mat',subj(s));
     load(loadfilename); % three conditions: time points x frequencies x trials x electrodes
 
     % Behaviour
-    %cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\Behavioural Preprocessed'
-    cd '/home/cbruckmann/LogRegStuff/LogRegBehaviour'
+    cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\Behavioural Preprocessed'
     loadfilename=sprintf('SxA_ResultsSubject%i_Session2.mat',subj(s));
     load(loadfilename,'alldataclean'); % three conditions: time points x frequencies x trials x electrodes
 
@@ -59,21 +56,10 @@ for s=1:length(subj)
         behav_data_obj=alldataclean(alldataclean{:,"Condition"}==c,{'Correct/Incorrect'}); % objective performance for current condition trials
         behav_data_subj=alldataclean(alldataclean{:,"Condition"}==c,{'Binary Visibility'}); % subjective visibility for current condition trials
         contrast_level=alldataclean(alldataclean{:,"Condition"}==c,{'Contrast Level'}); % get contrast level for each trial
-
-        % Remove artifacts from behaviour (already removed from EEG data)
+        % Remove artifact trials
         behav_data_obj=table2array(behav_data_obj(notart,:));
         behav_data_subj=table2array(behav_data_subj(notart,:));
         contrast_level=table2array(contrast_level(notart,:));
-        EEG_data=EEG_data(:,:,notart,:); % Dimensions: tp x freq x trials x elec
-
-         % Remove trials with unwanted irregular target times
-        clean_behavdata=alldataclean{(alldataclean{:,'Condition'}==c)&notart,:}; % first remove artifacts from behavioural data to match indeces of trials for EEG
-       
-        if c==3
-            idx_notar=ismember(clean_behavdata{(clean_behavdata{:,'Condition'}==c),'Irregular Target Time'},irrtartimes);
-        else
-            idx_notar=ones(size(behav_data_obj,1));
-        end
 
         % Remove Catch Trials
         idx=~isnan(behav_data_obj); % Find catch trials and mark as 0
@@ -88,18 +74,18 @@ for s=1:length(subj)
 
                 % Run for objective and save
                 [bestFitParams,~, ~, ~]=fitPsychometric_binaryData([contrast_level,curr_power], behav_data_obj, [0.4, 0.6, 0.9, 1]);
-                res_obj(s, c, f, tp , :) = bestFitParams;
+                res_obj(s, f, tp).bestFitParams = bestFitParams;
 
                 % Run for subjective and save
                 [bestFitParams,~, ~,~]=fitPsychometric_binaryData([contrast_level,curr_power], behav_data_subj, [0, 0.3, 0.9, 1]);
-                res_subj(s, c, f, tp , :)= bestFitParams; % subj x cond x freq x time point x params
+                res_subj(s, f, tp).bestFitParams = bestFitParams;
             end
         end
     end
     %% Save
-    %cd 'Y:\el-Christina\SxA\SxA_Results\LogRegResults'
-    fprintf("Completed Subject %i/%i.\n",s,length(subj)) 
+    cd 'Y:\el-Christina\SxA\SxA_Results\LogRegResults'
     save(savefilename,"res_subj","res_obj","timeVec","freqs","elecs")
+    fprintf("Completed Subject %i/%i.",s,length(subj))
 end
-save('GL_Res_LogReg',"res_subj","res_obj","timeVec","freqs","elecs")
+
 disp("LogReg Results Completed")

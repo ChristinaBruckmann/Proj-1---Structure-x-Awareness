@@ -63,6 +63,38 @@ for c=1:size(gl_tf_res_means,1) % For conditions
     end
 end
 
+%% Plot TF Better
+clear
+clc
+
+% Params
+freqs=1:40;
+elecs=[25:30 62:64]; % occipital
+
+% Load Data
+cd 'Y:\el-Christina\SxA\SxA_Results\New TF Results'
+load("GL_TF_Res","gl_tf_res_means","gl_tf_timeVec")
+timeVec=squeeze(gl_tf_timeVec(1,1,:))'; % same time vec for all subj and conditions anyway
+
+% Plot
+TF_plot=figure;
+for c=1:size(gl_tf_res_means,1) % For conditions
+    %minmaxscale= [min(mean(datatoplot,3),[],"all") max(mean(datatoplot,3),[],"all")];
+    %totalminmax=[-3 3];
+    subplot(1,3,c);imagesc(timeVec, freqs, squeeze(mean(gl_tf_res_means(c,:,freqs,elecs),4))', [1 6]); axis xy; hold all
+    xline(0,'w--','Warning Signal');
+    xline(800,'w--','Predicted Target');
+    colorbar();
+    xlabel('Time (ms)', 'FontWeight','bold', 'FontSize', 10);
+    ylabel('Frequency (Hz)', 'FontWeight','bold', 'FontSize', 10);
+    if c==1
+        title('Rhythm - Pre-Target Frequency Amplitudes');
+    elseif c==2
+        title('Interval - Pre-Target Frequency Amplitudes');
+    elseif c==3
+        title('Irregular - Pre-Target Frequency Amplitudes');
+    end
+end
 %% Plot Topography
 
 clear

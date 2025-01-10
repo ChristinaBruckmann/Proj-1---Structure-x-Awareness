@@ -6,13 +6,13 @@ rhythm_survey = [90, 70, 100, 94, 65, 66, 91, 81, 81, 78, 72, 81, 100, 77, 75, 5
 
 % Merge
 survey_means = [mean(rhythm_survey) mean(interval_survey)];
-figure;
+figure("Position",[763.4000  232.2000  723.2000  541.6000]);
 % Plot
-b = bar(survey_means, 'Facecolor', 'flat');
+b = bar(survey_means, 'Facecolor', 'flat', 'FaceAlpha', 0.7,'EdgeColor', 'none'); 
 hold on
 
 xticklabels({'Rhythm', 'Interval'})
-ylabel('Rating (0-100)')
+ylabel('Rating (0-100)','FontSize', 14)
 ylim([0 105])
 title('How well did you manage to use the...?')
 
@@ -22,11 +22,17 @@ boxplotdata = [rhythm_survey', interval_survey'];
 % Plot each participant's data points connected by lines
 for i = 1:size(boxplotdata, 1)
     if boxplotdata(i, 1) > boxplotdata(i, 2)
-        plot([1, 2], [boxplotdata(i, 1), boxplotdata(i, 2)], 'ro', 'LineWidth', 0.7, 'Color', 'k')
+        plot([1, 2], [boxplotdata(i, 1), boxplotdata(i, 2)], '--ro', 'LineWidth', 0.7, 'Color', 'k')
     else
-        plot([1, 2], [boxplotdata(i, 1), boxplotdata(i, 2)], 'ro', 'LineWidth', 0.7, 'Color', 'k')
+        plot([1, 2], [boxplotdata(i, 1), boxplotdata(i, 2)], '-ro', 'LineWidth', 0.7, 'Color', 'k')
     end
 end
 
 b.CData(1, :) = [0.00, 0.45, 0.74];
 b.CData(2, :) = [0.85, 0.33, 0.10];
+
+% Make plot pretty
+box off
+yticks(0:20:100)
+ax = gca;
+ax.FontSize = 14;

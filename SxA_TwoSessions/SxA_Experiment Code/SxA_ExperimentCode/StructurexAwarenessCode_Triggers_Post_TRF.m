@@ -179,7 +179,7 @@ timeinfo.prethr = [0.75 1 1.25]; % time before target during thresholding in sec
 timeinfo.preqjitter = [0.85 1 1.15]; % time after target before first question
 %timeinfo.irrtartime = [timeinfo.rhyISI*0.8 timeinfo.rhyISI*0.9 timeinfo.rhyISI timeinfo.rhyISI*1.1 timeinfo.rhyISI*1.2]; % Irregular target times
 timeinfo.irrtartime = [0.4 0.6 0.8 1 1.2]; % new version with increased jitter
-timeinfo.ITI=1.4;
+timeinfo.ITI=1.4; % intertrial interval
 
 % Calculations
 mixinfo.nBlocks=3;

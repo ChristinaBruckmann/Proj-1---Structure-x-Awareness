@@ -7,7 +7,6 @@ freqs=8:12;
 elecs=[25:30 62:64]; % occipital
 subj=[101:103 105:108 110 112:114 117:119 121 122 124 126 127 129 130]; 
 downsample=1; % downsample time to 30ms windows for faster processing?
-irrtartimes=[3 4 5]; % when irregular targets can appear (1 and 2 before 900ms, 3 is 900ms, 4 and 5 after 900ms)
 
 %% Run for each subject
 for s=1:length(subj)
@@ -59,21 +58,10 @@ for s=1:length(subj)
         behav_data_obj=alldataclean(alldataclean{:,"Condition"}==c,{'Correct/Incorrect'}); % objective performance for current condition trials
         behav_data_subj=alldataclean(alldataclean{:,"Condition"}==c,{'Binary Visibility'}); % subjective visibility for current condition trials
         contrast_level=alldataclean(alldataclean{:,"Condition"}==c,{'Contrast Level'}); % get contrast level for each trial
-
-        % Remove artifacts from behaviour (already removed from EEG data)
+        % Remove artifact trials
         behav_data_obj=table2array(behav_data_obj(notart,:));
         behav_data_subj=table2array(behav_data_subj(notart,:));
         contrast_level=table2array(contrast_level(notart,:));
-        EEG_data=EEG_data(:,:,notart,:); % Dimensions: tp x freq x trials x elec
-
-         % Remove trials with unwanted irregular target times
-        clean_behavdata=alldataclean{(alldataclean{:,'Condition'}==c)&notart,:}; % first remove artifacts from behavioural data to match indeces of trials for EEG
-       
-        if c==3
-            idx_notar=ismember(clean_behavdata{(clean_behavdata{:,'Condition'}==c),'Irregular Target Time'},irrtartimes);
-        else
-            idx_notar=ones(size(behav_data_obj,1));
-        end
 
         % Remove Catch Trials
         idx=~isnan(behav_data_obj); % Find catch trials and mark as 0

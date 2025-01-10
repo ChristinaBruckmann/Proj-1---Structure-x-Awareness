@@ -6,7 +6,7 @@ function []=sxa_TF_alpaamp(subj,plots,catchonly)
 disp('Starting Alpha Amplitude Analysis')
 
 % Output: TF Data 
-irrtartimes=[3 4 5]; % when irregular targets can appear (1 and 2 before 800ms, 3 is 800ms, 4 and 5 after 800ms)
+irrtartimes=[3 4 5]; % when irregular targets can appear (1 and 2 before 900ms, 3 is 900ms, 4 and 5 after 900ms)
 excludeshortcue=0; %exclude cues that are too close to the WS?
 mincue=0.4; % exclude all cues that are equal or closer than this to the WS
 basec=0; %baselinecorrection? only relevant for plotting, does not change data files saved
