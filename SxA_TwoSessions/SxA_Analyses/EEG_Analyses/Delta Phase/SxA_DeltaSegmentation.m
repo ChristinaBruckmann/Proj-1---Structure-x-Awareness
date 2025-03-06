@@ -10,7 +10,7 @@ if catchonly
     triggercodes={1;2;3}; % Catch Target Signals per condition (cut around target)
     timerange=[-1500 400];
 else
-    irrtartimes=[3 4 5]; % only choose trials where the target does not appear before 800ms
+    irrtartimes=[3]; % only choose trials where the target does not appear before 900ms
     triggercodes={71;72;73}; % From Warning Signal
     timerange=[-700 1200];
 end
@@ -21,9 +21,9 @@ for s=1:length(subj)
     loadfilename1=sprintf('EEG_SxA_Subj%i_DeltaPhaseSingleTrials_NewFreq.mat',subj(s));
     loadfilename2=sprintf('EEG_SxA_Subj%i_Session2_pp.mat',subj(s));
 
-    cd 'Z:\el-Christina\SxA\SxA_Data\EEG Preprocessed'
+    cd 'Y:\el-Christina\SxA\SxA_Data\EEG Preprocessed'
     load(loadfilename2,'SDATA')
-    cd 'Z:\el-Christina\SxA\SxA_Results\New Delta Results'
+    cd 'Y:\el-Christina\SxA\SxA_Results\Delta Results'
 
     for cl=cluster
         if cluster==1
@@ -54,7 +54,7 @@ for s=1:length(subj)
                 % Get index for irregular trials without target in time window if not catch trials
                 if ~catchonly(c_only)
                     if c==3
-                        cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\Behavioural Preprocessed'
+                        cd 'Y:\el-Christina\SxA\SxA_Data\Behaviour Preprocessed'
                         load(sprintf('SxA_ResultsSubject%i_Session2.mat',subj(s)),'alldataclean')
                         idx_notar=ismember(alldataclean{(alldataclean{:,'Condition'}==c),'Irregular Target Time'},irrtartimes);
                     else
@@ -107,7 +107,7 @@ for s=1:length(subj)
             end
 
             % Save
-            cd 'Z:\el-Christina\SxA\SxA_Results\New Delta Results'
+            cd 'Y:\el-Christina\SxA\SxA_Results\Delta Results\Only 900'
             if catchonly(c_only)
                 if cl==1
                     savefilename=sprintf('NewFreq_OccipitalCatch_Subj%i',subj(s));
@@ -126,14 +126,14 @@ for s=1:length(subj)
                 end
             else
                 if cl==1
-                    savefilename=sprintf('NewFreq_OccipitalAll_Subj%i',subj(s));
+                    savefilename=sprintf('NewFreq_Occipital900_Subj%i',subj(s));
                     Delta_SingleTrials_occ=Delta_SingleTrials;
                     ITPCdelta_nTrials_occ=ITPCdelta_nTrials;
                     ITPCdelta_timevec_occ=ITPCdelta_timevec;
                     ITPCdelta_jack_occ=ITPCdelta_jack;
                     save(savefilename, "Delta_SingleTrials_occ","ITPCdelta_nTrials_occ","ITPCdelta_timevec_occ","ITPCdelta_jack_occ",'-v7.3')
                 else
-                    savefilename=sprintf('NewFreq_CentralAll_Subj%i',subj(s));
+                    savefilename=sprintf('NewFreq_Central900_Subj%i',subj(s));
                     Delta_SingleTrials_cen=Delta_SingleTrials;
                     ITPCdelta_nTrials_cen=ITPCdelta_nTrials;
                     ITPCdelta_timevec_cen=ITPCdelta_timevec;

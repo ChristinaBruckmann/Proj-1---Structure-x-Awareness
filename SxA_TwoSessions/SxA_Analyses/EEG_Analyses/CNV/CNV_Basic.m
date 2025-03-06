@@ -4,8 +4,7 @@
 
 clear
 clc
-subj=[101:103 105:108 110:114 116:119 121:122 124 126 127 129 131 132];
-%subj=[124 126 127 129 131 132];
+subj=[123];
 lpf_cutoff=20;
 irrtartimes=[3]; % when irregular targets can appear (1 and 2 before 800ms, 3 is 800ms, 4 and 5 after 800ms)
 
@@ -50,7 +49,7 @@ for s=1:length(subj)
 
         % Select only irregular trials with targets at moments specified above (tendentially only at or after 800 to reduce smearing)
         if c==3
-            cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\Behavioural Preprocessed'
+            cd 'Y:\el-Christina\SxA\SxA_Data\Behaviour Preprocessed'
             load(sprintf('SxA_ResultsSubject%i_Session2.mat',subj(s)),'alldataclean','subresults')
             idx_notar=ismember(alldataclean{(alldataclean{:,'Condition'}==c),'Irregular Target Time'},irrtartimes);
         else

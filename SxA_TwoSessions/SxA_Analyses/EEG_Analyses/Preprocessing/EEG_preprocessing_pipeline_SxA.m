@@ -342,7 +342,6 @@ SDATA.metadata.analysisStageDone=7;
 % show_data = [VEOG HEOG SDATA.data AnonymousTriggers1];
 % multichanplot(show_data, 10, 'srate', SDATA.info.sampling_rate, 'channelnames', [clean_channels_labels_with_bipolar; {'Anonymous Trigger'}], 'ylim', [-100 100]);
 %% 8. semi-automatic artifact rejection %%
-
 %% 8.1: automatic artifact detection
 lpf_cutoff_for_rdi = 50;
 
@@ -444,7 +443,7 @@ SDATA.metadata.analysisStageDone=9;
 %% 10. save SData
 clc
 %cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Preprocessed'
-cd 'Z:\el-Christina\SxA\SxA_Data'
+cd 'Y:\el-Christina\SxA\SxA_Data'
 fileNameSave=[SDATA.info.fileNames{1}(1:end-4) '_pp.mat'];
 disp('Saving')
 save(fileNameSave, 'SDATA','-v7.3')

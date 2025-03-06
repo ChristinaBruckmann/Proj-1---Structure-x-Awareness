@@ -6,9 +6,10 @@
 clear
 clc
 
-avg_done=1; % Average already computed (saves time) or compute here?
-subj=[101:103 105:108 110 112:114 116:119 121 122 124 126 127 129 130];
-clusters=[1 2]; % (1-occipital, 2- central)
+avg_done=0; % Average already computed (saves time) or compute here?
+%subj=[101:103 105:108 110 112:114 116:119 121 122 123 124 126 127 129 130 131 132];
+subj=[102   103   105   106   107   108   110   112   113   114   117   118   119  121   122   124   126   127   129   130];
+clusters=[1]; % (1-occipital, 2- central)
 trialtypes= [1]; % (1-all trials, 2 - catch trials)
 plotindividuals=[0]; % plot also individual participants
 varplotting=1; % add error bars to plot?
@@ -19,7 +20,8 @@ shade=0; % shade the statistics window?
 clust_perm=1; % plot cluster based perm results?
 
 %% Dir
-cd ' Y:\el-Christina\SxA\SxA_Results\New Delta Results'
+%cd ' Y:\el-Christina\SxA\SxA_Results\New Delta Results'
+cd 'Y:\el-Christina\SxA\SxA_Results\Delta Results\Only 900'
 
 %% Delta Average
 for ccluster=clusters
@@ -42,7 +44,8 @@ for ccluster=clusters
         if ~avg_done % If average has already been computed and saved (saves time!)
             for s=1:length(subj)
                 if ccluster==1 && ~catchonly
-                    loadfilename=sprintf('NewFreq_OccipitalAll_Subj%i',subj(s));
+                    %loadfilename=sprintf('NewFreq_OccipitalAll_Subj%i',subj(s));
+                    loadfilename=sprintf('NewFreq_Occipital900_Subj%i',subj(s));
                     load(loadfilename,"Delta_SingleTrials_occ","ITPCdelta_timevec_occ","ITPCdelta_nTrials_occ") %(time points x electrodes x trials)
                     for c=1:3
                         Delta_ITPC(s,c,:,:)=circ_r(Delta_SingleTrials_occ{c},[], [], 3);
@@ -130,7 +133,8 @@ for ccluster=clusters
     end
 end
 %% Plot
-cd ' Y:\el-Christina\SxA\SxA_Results\New Delta Results'
+%cd ' Y:\el-Christina\SxA\SxA_Results\New Delta Results'
+cd 'Y:\el-Christina\SxA\SxA_Results\Delta Results\Only 900'
 figure("Position",[269.8000  145.0000  778.2000  617.0000]);
 t = tiledlayout('flow');
 for ccluster=clusters

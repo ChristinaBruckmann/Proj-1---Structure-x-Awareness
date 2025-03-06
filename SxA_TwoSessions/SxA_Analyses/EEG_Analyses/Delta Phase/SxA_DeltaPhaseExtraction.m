@@ -9,7 +9,7 @@ for s=1:length(subj)
     disp('Starting Delta Phase Extraction')
 
     % Load Data
-    cd 'Z:\el-Christina\SxA\SxA_Data\EEG Preprocessed'
+    cd 'Y:\el-Christina\SxA\SxA_Data\EEG Preprocessed'
 
     loadfilename=sprintf('EEG_SxA_Subj%i_Session2_pp.mat',subj(s));
     savefilename=sprintf('EEG_SxA_Subj%i_DeltaPhaseSingleTrials_NewFreq.mat',subj(s));
@@ -45,7 +45,7 @@ for s=1:length(subj)
     delta_phase_whole_occ = angle(hil_occ); % phase
     delta_phase_whole_cen = angle(hil_cen); % phase
 
-    cd 'Z:\el-Christina\SxA\SxA_Results\New Delta Results'
+    cd 'Y:\el-Christina\SxA\SxA_Results\New Delta Results'
     save(savefilename, 'delta_phase_whole_occ','delta_phase_whole_cen','-v7.3')
 
     fprintf('Finished Delta Phase Extraction Subject %i / %i \n',s,length(subj)')

@@ -7,17 +7,18 @@ disp('Starting Alpha Amplitude Analysis')
 
 % Output: TF Data 
 irrtartimes=[3 4 5]; % when irregular targets can appear (1 and 2 before 900ms, 3 is 900ms, 4 and 5 after 900ms)
-excludeshortcue=0; %exclude cues that are too close to the WS?
+excludeshortcue=1; %exclude cues that are too close to the WS?
 mincue=0.4; % exclude all cues that are equal or closer than this to the WS
 basec=0; %baselinecorrection? only relevant for plotting, does not change data files saved
 normmethod=1; % which normalization of morlet? 1 or 2
+alpha_only=1; % Run only alpha frequencies? Otherwise 1:40
 
 % Which time points?
 % If all=0, time around warning signal and target gets analyzed
 maskonly=0; % alpha power around mask onsest only?
 firstinterval=0; % compare alpha power of first interval to second interval
 block_begin=0; % only the beginning 5 seconds of each block?
-wholeRhythmTrial=0; % analyze the whole trial duration for rhythm trials (other conditions not possible due to jitter)
+wholeRhythmTrial=1; % analyze the whole trial duration for rhythm trials (other conditions not possible due to jitter)
 
 % Convert to power?
 power=0; % power==1, amplitude==0
@@ -25,7 +26,7 @@ power=0; % power==1, amplitude==0
 % Electrodes?
 occelonly=1; % only save occipital electrodes (used as default to reduce file size)
 
-% Reject artifact trials before saving? (automaticallt disabled for block_begin to identify the first trial of a block
+% Reject artifact trials before saving? (automaticallt disabled for block_begin to identify the first trial of a block)
 % For single trial analysis use the sxa_TF script!
 artrej=1; 
 
@@ -46,13 +47,13 @@ elseif maskonly
     timerange=[-600 700];
 elseif firstinterval
     triggercodes={42};
-    timerange=[-200 1500];
+    timerange=[-200 1300];
 elseif block_begin
     triggercodes={31;32;33}; % no code for start of block, but this takes all trials beginnings, later selects the first trial of each block
     timerange=[-4000 200]; %back five seconds from the first trial of each block
 elseif wholeRhythmTrial
     triggercodes={41}; % first rhythm cue. cannot take trial begining because of jitter between trial onset and first cue
-    timerange=[-100 3800]; %whole trial (100ms before first cue. after cue: (100ms cue + 800int)x4 (three cues plus WS) + 16ms target + 100 ms post target
+    timerange=[-200 4200]; %whole trial (100ms before first cue. after cue: (100ms cue + 800int)x4 (three cues plus WS) = 3600+ 100 ms post target
 else
     triggercodes={71;72;73}; % Warning Signals per condition
     timerange=[-400 1500];
@@ -60,7 +61,7 @@ end
 
 % Parameters
 paddingLength=500; % in ms
-if wholeRhythmTrial % for time purposes, just analyze alpha range
+if alpha_only % for time purposes, just analyze alpha range
     alpha_wavFreqs=8:12;
     alpharange=1:length(alpha_wavFreqs);
 else
@@ -70,7 +71,7 @@ end
 
 
 % Load Data
-cd 'Z:\el-Christina\SxA\SxA_Data\EEG Preprocessed'
+cd 'Y:\el-Christina\SxA\SxA_Data\EEG Preprocessed'
 %cd 'D:\'
 
 loadfilename=sprintf('EEG_SxA_Subj%i_Session2_pp.mat',subj);
@@ -114,7 +115,7 @@ for c=1:size(triggercodes,1) % For conditions
         if c==3 && ~catchonly && ~maskonly && ~block_begin
 
             % Exclude irregular targets
-            cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\Behavioural Preprocessed'
+            cd 'Y:\el-Christina\SxA\SxA_Data\Behaviour Preprocessed'
             load(sprintf('SxA_ResultsSubject%i_Session2.mat',subj),'alldataclean','subresults')
             idx_notar=ismember(alldataclean{(alldataclean{:,'Condition'}==c),'Irregular Target Time'},irrtartimes);
 
@@ -188,7 +189,7 @@ for c=1:size(triggercodes,1) % For conditions
     alpha_ntrials{c}=size(segmentedData,3);
     clear condResults segmentedData timeVec
 end
-cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\AlphaRes'
+cd 'Y:\el-Christina\SxA\SxA_Results\AlphaPowerRes'
 
 if ~block_begin
     save(savefilename, 'alpha_Results', 'alpha_timeVecTotal', 'alpha_wavFreqs', 'alpha_tfElectrodes','alpha_ntrials',"power",'irrtartimes');

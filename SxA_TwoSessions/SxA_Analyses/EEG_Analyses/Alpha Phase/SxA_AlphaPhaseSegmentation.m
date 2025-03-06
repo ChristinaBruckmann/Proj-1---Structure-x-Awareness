@@ -19,7 +19,7 @@ else
 end
 
 for s=1:length(subj)
-    cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\AlphaPhaseRes'
+    cd 'Y:\el-Christina\SxA\SxA_Results\AlphaPhaseRes'
     loadfilename1=sprintf('EEG_SxA_Subj%i_AlphaPhaseSingleTrials.mat',subj(s));
     loadfilename2=sprintf('EEG_SxA_Subj%i_Session2_pp.mat',subj(s));
     %savefilename=sprintf('EEG_SxA_Subj%i_Results_NewAlpha.mat',subj(s));
@@ -31,8 +31,7 @@ for s=1:length(subj)
         alpha_data=alpha_phase_whole_cen;
     end
    
-    %cd 'Z:\el-Christina\SxA\SxA_Data\EEG Preprocessed'
-    cd 'D:\'
+    cd 'Y:\el-Christina\SxA\SxA_Data\EEG Preprocessed'
     load(loadfilename2,'SDATA')
 
     artifacts=SDATA.metadata.artifacts;
@@ -49,7 +48,7 @@ for s=1:length(subj)
         % Get index for irregular trials without target in time window if not catch trials
         if ~catchonly
             if c==3
-                cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\Behavioural Preprocessed'
+                cd 'Y:\el-Christina\SxA\SxA_Data\Behaviour Preprocessed'
                 load(sprintf('SxA_ResultsSubject%i_Session2.mat',subj(s)),'alldataclean')
                 idx_notar=ismember(alldataclean{(alldataclean{:,'Condition'}==c),'Irregular Target Time'},irrtartimes);
             else
@@ -102,7 +101,7 @@ for s=1:length(subj)
     end
 
     % Save
-     cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\AlphaPhaseRes'
+     cd 'Y:\el-Christina\SxA\SxA_Results\AlphaPhaseRes'
    % cd 'Z:\el-Christina\SxA\SxA_Results\AlphaPhaseRes'
     if catchonly
         if cluster==1

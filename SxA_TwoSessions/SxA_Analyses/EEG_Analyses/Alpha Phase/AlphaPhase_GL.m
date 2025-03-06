@@ -19,7 +19,7 @@ end
 % Load
 for s=1:length(subj)
     if cluster==1 && ~catchonly
-        loadfilename=sprintf('OccipitalAll_Subj%i',subj(s));
+        loadfilename=sprintf('Alpha_OccipitalAll_Subj%i',subj(s));
         load(loadfilename,"Alpha_SingleTrials_occ","ITPCalpha_timevec_occ","ITPCalpha_nTrials_occ") %(time points x electrodes x trials)
         for c=1:3
         Alpha_SingleTrials(s,c,:,:)=circ_r(Alpha_SingleTrials_occ{c},[], [], 3);
@@ -27,7 +27,7 @@ for s=1:length(subj)
         Alpha_Ntrials(s,c,:)=ITPCalpha_nTrials_occ(c);
         end
     elseif cluster==1 && catchonly
-        loadfilename=sprintf('OccipitalCatch_Subj%i',subj(s));
+        loadfilename=sprintf('Alpha_OccipitalCatch_Subj%i',subj(s));
         load(loadfilename,"Alpha_SingleTrials_occ_catch","ITPCalpha_timevec_occ_catch","ITPCalpha_nTrials_occ_catch") %(time points x electrodes x trials)
         for c=1:3
         Alpha_SingleTrials(s,c,:,:)=circ_r(Alpha_SingleTrials_occ_catch{c},[], [], 3);
@@ -35,7 +35,7 @@ for s=1:length(subj)
         Alpha_Ntrials(s,c,:)=ITPCalpha_nTrials_occ_catch(c);
         end
     elseif cluster==2 && ~catchonly
-        loadfilename=sprintf('CentralAll_Subj%i',subj(s));
+        loadfilename=sprintf('Alpha_CentralAll_Subj%i',subj(s));
         load(loadfilename,"Alpha_SingleTrials_cen","ITPCalpha_timevec_cen","ITPCalpha_nTrials_cen") %(time points x electrodes x trials)
         for c=1:3
         Alpha_SingleTrials(s,c,:,:)=circ_r(Alpha_SingleTrials_cen{c},[], [], 3);
@@ -43,7 +43,7 @@ for s=1:length(subj)
         Alpha_Ntrials(s,c,:)=ITPCalpha_nTrials_cen(c);
         end
     elseif cluster==2 && catchonly
-        loadfilename=sprintf('CentralCatch_Subj%i',subj(s));
+        loadfilename=sprintf('Alpha_CentralCatch_Subj%i',subj(s));
         load(loadfilename,"Alpha_SingleTrials_cen_catch","ITPCalpha_timevec_cen_catch","ITPCalpha_nTrials_cen_catch") %(time points x electrodes x trials)
         for c=1:3
         Alpha_SingleTrials(s,c,:,:)=circ_r(Alpha_SingleTrials_cen_catch{c},[], [], 3);
@@ -94,7 +94,7 @@ alpha_tw=mean(alpha_tw,3); % average across time points
 [h_alpha(3),p_alpha(3),~,stats_alpha(3,:)] = ttest(alpha_tw(:,1),alpha_tw(:,2));
 
 % Save
-cd 'Z:\el-Christina\SxA\SxA_Results\Alpha Results'
+cd 'Z:\el-Christina\SxA\SxA_Results\AlphaPhaseRes'
 if cluster==1 && catchonly
 save("AlphaGroupLevel_Occ_Catch",'Alpha','subj','timeVec','nTrials')
 elseif cluster==1 && ~catchonly

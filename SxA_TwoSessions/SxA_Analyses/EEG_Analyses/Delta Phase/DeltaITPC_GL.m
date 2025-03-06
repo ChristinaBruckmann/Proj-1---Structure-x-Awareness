@@ -3,7 +3,7 @@
 clear
 clc
 %subj=[17:22];
-subj=[101:103 105:108 110 112:114 116:119 121 122 124 126 127 129 130];
+subj=[101:103 105:108 110 112:114 116:119 121 122 123 124 126 127 129 130];
 cd 'Z:\el-Christina\SxA\SxA_Results\New Delta Results'
 cluster=2; %(1 occipital, 2 central)
 catchonly=1; %(1-yes)

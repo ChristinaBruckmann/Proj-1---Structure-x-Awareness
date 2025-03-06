@@ -9,7 +9,7 @@ for s=1:length(subj)
 disp('Starting Alpha Phase Analysis')
 
 % Load Data
-cd 'D:\'
+cd 'Y:\el-Christina\SxA\SxA_Data\EEG Preprocessed'
 
 loadfilename=sprintf('EEG_SxA_Subj%i_Session2_pp.mat',subj(s));
 savefilename=sprintf('EEG_SxA_Subj%i_AlphaPhaseSingleTrials.mat',subj(s));
@@ -46,7 +46,7 @@ hil_occ = hilbert(bpFilteredData_occ);
 alpha_phase_whole_occ = angle(hil_occ); % phase
 %alpha_phase_whole_cen = angle(hil_cen); % phase
 
-cd 'C:\Users\cbruckmann\Documents\PhD Projects\Proj1 - StructurexAwareness\SxA_TwoSessions\SxA_Data\EEG Results\AlphaPhaseRes'
+cd 'Y:\el-Christina\SxA\SxA_Results\AlphaPhaseRes'
 save(savefilename, 'alpha_phase_whole_occ','-v7.3')
 end
 end
