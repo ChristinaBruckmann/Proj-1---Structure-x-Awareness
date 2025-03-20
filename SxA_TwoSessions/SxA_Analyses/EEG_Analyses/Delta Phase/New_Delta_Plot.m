@@ -20,8 +20,7 @@ shade=0; % shade the statistics window?
 clust_perm=1; % plot cluster based perm results?
 
 %% Dir
-%cd ' Y:\el-Christina\SxA\SxA_Results\New Delta Results'
-cd 'Y:\el-Christina\SxA\SxA_Results\Delta Results\Only 900'
+cd ' Y:\el-Christina\SxA\SxA_Results\New Delta Results'
 
 %% Delta Average
 for ccluster=clusters
@@ -44,8 +43,7 @@ for ccluster=clusters
         if ~avg_done % If average has already been computed and saved (saves time!)
             for s=1:length(subj)
                 if ccluster==1 && ~catchonly
-                    %loadfilename=sprintf('NewFreq_OccipitalAll_Subj%i',subj(s));
-                    loadfilename=sprintf('NewFreq_Occipital900_Subj%i',subj(s));
+                    loadfilename=sprintf('NewFreq_OccipitalAll_Subj%i',subj(s));
                     load(loadfilename,"Delta_SingleTrials_occ","ITPCdelta_timevec_occ","ITPCdelta_nTrials_occ") %(time points x electrodes x trials)
                     for c=1:3
                         Delta_ITPC(s,c,:,:)=circ_r(Delta_SingleTrials_occ{c},[], [], 3);
@@ -87,18 +85,19 @@ for ccluster=clusters
             timeVec=squeeze(Delta_TimeVec(1,1,:)); % All TV are identical
 
             % For all subjects and conditions calculate the chance ITPC (for later BL correction)
+
             for part=1:length(Delta_Ntrials)
                 for con=1:width(Delta_Ntrials)
-                % Chance angles
-                angles=2*pi*rand(Delta_Ntrials(part,con),10000);
-                angle_means(part,con)=mean(circ_r(angles));
-                angle_std(part,con)=std(circ_r(angles));
+                    % Chance angles
+                    angles=2*pi*rand(Delta_Ntrials(part,con),10000);
+                    angle_means(part,con)=mean(circ_r(angles));
+                    angle_std(part,con)=std(circ_r(angles));
                 end
-            end
 
-            % Subtract baseline from each condition
-            Delta_ITPC=Delta_ITPC-angle_means;
-          
+
+                % Subtract baseline from each condition
+                Delta_ITPC=Delta_ITPC-angle_means;
+            end
 
             % Average for each participant across electrodes
             %PartMean=squeeze(mean(Delta_ITPC(:,:,:,elec),4));
@@ -133,8 +132,7 @@ for ccluster=clusters
     end
 end
 %% Plot
-%cd ' Y:\el-Christina\SxA\SxA_Results\New Delta Results'
-cd 'Y:\el-Christina\SxA\SxA_Results\Delta Results\Only 900'
+cd ' Y:\el-Christina\SxA\SxA_Results\New Delta Results'
 figure("Position",[269.8000  145.0000  778.2000  617.0000]);
 t = tiledlayout('flow');
 for ccluster=clusters

@@ -212,7 +212,6 @@ xline(rhy_events_idx(6),"Label","Target","LineStyle","--","LabelHorizontalAlignm
 title("All Conditions")
 
 %% Plot BL Corrected vs. Raw
-figure;
 bl_window=[-600 0]; %referring to mask onset at 0 (be aware x axis of whole trial is meaningless, when moving this!)
 
 % Calculate BL Correction
@@ -220,9 +219,9 @@ BL_idx=timeVec_rhy_mask>bl_window(1) & timeVec_rhy_mask<bl_window(2);
 BL_rhy=mean(GL_alpha_rhy_mask(BL_idx));
 BL_int=mean(GL_alpha_int_mask(BL_idx));
 BL_irr=mean(GL_alpha_irr_mask(BL_idx));
-rhythm_total_bl=rhythm_total-BL_rhy;
-interval_total_bl=interval_total-BL_int;
-irregular_total_bl=irregular_total-BL_irr;
+rhythm_total_bl
+interval_total_bl
+irregulr
 
 % Raw
 subplot(2,1,1);
@@ -238,23 +237,9 @@ xline(rhy_events_idx(3),"Label","Second Cue","LabelHorizontalAlignment","left","
 xline(rhy_events_idx(4),"Label","Third Cue","LabelHorizontalAlignment","left","LabelVerticalAlignment","bottom")
 xline(rhy_events_idx(5),"Label","Warning Signal","LabelHorizontalAlignment","left","LabelVerticalAlignment","bottom")
 xline(rhy_events_idx(6),"Label","Target","LineStyle","--","LabelHorizontalAlignment","left")
-title("All Conditions Raw")
+title("All Conditions")
 
-% Raw
-subplot(2,1,2);
-plot(1:length(rhythm_total),rhythm_total_bl,"LineWidth",3)
-hold on
-plot(1:length(interval_total),interval_total_bl,"LineWidth",3)
-plot(1:length(irregular_total),irregular_total_bl,"LineWidth",3)
-xlim([0 length(interval_total_bl)])
-box("off")
-xline(rhy_events_idx(1),"Label","Mask Onset","LabelHorizontalAlignment","left","LabelVerticalAlignment","bottom")
-xline(rhy_events_idx(2),"Label","First Cue","LabelHorizontalAlignment","left","LabelVerticalAlignment","bottom")
-xline(rhy_events_idx(3),"Label","Second Cue","LabelHorizontalAlignment","left","LabelVerticalAlignment","bottom")
-xline(rhy_events_idx(4),"Label","Third Cue","LabelHorizontalAlignment","left","LabelVerticalAlignment","bottom")
-xline(rhy_events_idx(5),"Label","Warning Signal","LabelHorizontalAlignment","left","LabelVerticalAlignment","bottom")
-xline(rhy_events_idx(6),"Label","Target","LineStyle","--","LabelHorizontalAlignment","left")
-title("All Conditions Baselined")
+
 %% Plot Rhythm Time Course
 % 
 % % Plot Mask Onset
