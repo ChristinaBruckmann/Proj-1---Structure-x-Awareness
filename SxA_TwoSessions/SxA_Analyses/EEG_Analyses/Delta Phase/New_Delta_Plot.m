@@ -93,11 +93,10 @@ for ccluster=clusters
                     angle_means(part,con)=mean(circ_r(angles));
                     angle_std(part,con)=std(circ_r(angles));
                 end
-
-
-                % Subtract baseline from each condition
-                Delta_ITPC=Delta_ITPC-angle_means;
             end
+
+            % Subtract baseline from each condition
+            Delta_ITPC=Delta_ITPC-angle_means;
 
             % Average for each participant across electrodes
             %PartMean=squeeze(mean(Delta_ITPC(:,:,:,elec),4));
